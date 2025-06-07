@@ -81,6 +81,16 @@
             background-color: #fff;
         }
         input[type="date"] { width: auto; min-width: 220px;}
+        /* Quitar flechas en input number en algunos navegadores */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+
 
         .editable-area {
             min-height: 180px;
@@ -116,7 +126,7 @@
             border: 1px solid var(--border-color);
             align-items: center;
         }
-        .toolbar button, .toolbar input[type="color"], .toolbar select, .toolbar input[type="number"] {
+        .toolbar button, .toolbar input[type="color"], .toolbar select, .toolbar input[type="number"].font-size-input { /* Modificado para clase específica */
             padding: 8px 10px;
             font-size: 0.9rem;
             min-width: 40px;
@@ -133,7 +143,7 @@
             height: 38px;
             width: 40px;
         }
-        .toolbar select, .toolbar input[type="number"] {
+        .toolbar select, .toolbar input[type="number"].font-size-input { /* Modificado */
             height: 38px;
             padding: 0 8px;
         }
@@ -201,7 +211,7 @@
             background-color: var(--toolbar-bg);
             border-radius: 6px;
         }
-        .controls button {
+        .controls button { /* Estilo base para botones en .controls */
              background-color: #fff;
              color: var(--dark-text);
              border: 1px solid #adb5bd;
@@ -209,14 +219,27 @@
         .controls button:hover { background-color: #e2e6ea; }
         .controls button.active-tool { background-color: var(--primary-color); color:white; }
 
-        .controls input[type="color"], .controls input[type="range"], .controls input[type="number"] {
+        /* Botones +/- de grosor */
+        .controls button.width-adjust-btn {
+            min-width: 30px !important; /* Asegurar que el !important no sea necesario si no hay conflictos */
+            padding: 8px !important;    /* Asegurar que el !important no sea necesario */
+            font-size: 1.1rem;
+            font-weight: bold;
+            line-height: 1; /* Para centrar mejor el + y - */
+        }
+
+
+        .controls input[type="color"], .controls input[type="number"] { /* Agrupado input number aquí */
             padding: 0;
             height: 38px;
             border: 1px solid #adb5bd;
             border-radius: 4px;
         }
-        .controls input[type="range"] { flex-grow: 1; max-width: 150px; }
-        .controls input[type="number"] { width: 70px; padding: 0 8px; text-align: center; }
+        .controls input[type="number"] { /* Estilo específico para el input number de grosor */
+            width: 60px; 
+            padding: 0 8px; 
+            text-align: center; 
+        }
         .controls label { margin-bottom: 0; margin-right: 5px; font-weight: normal;}
 
         /* Lista de Notas */
@@ -250,17 +273,17 @@
             font-weight: normal;
         }
          .saved-note-item .note-header input[type="checkbox"] {
-            margin-right: 0; /* Ya no se necesita tanto espacio */
+            margin-right: 0; 
             transform: scale(1.1);
         }
         .saved-note-item .note-text-content {
             font-size: 0.95rem;
             line-height: 1.6;
             word-break: break-word;
-            max-height: 100px; /* Limitar altura inicial */
+            max-height: 100px; 
             overflow: hidden;
-            text-overflow: ellipsis; /* No funciona bien con multilínea HTML */
-            position: relative; /* Para el "leer más" */
+            text-overflow: ellipsis; 
+            position: relative; 
         }
         .saved-note-item .note-text-content.expanded {
             max-height: none;
@@ -271,19 +294,19 @@
             font-weight: 500;
             font-size: 0.85rem;
             margin-top: 5px;
-            display: none; /* Se muestra por JS si es necesario */
+            display: none; 
         }
 
         .saved-note-item img {
             max-width: 100%;
-            max-height: 150px; /* Limitar altura de preview */
+            max-height: 150px; 
             object-fit: cover;
             height: auto;
             border: 1px solid var(--border-color);
             margin-top: 10px;
             border-radius: 4px;
             background-color: var(--canvas-bg);
-            cursor: pointer; /* Para ampliar imagen en el futuro */
+            cursor: pointer; 
         }
         .saved-note-actions {
             margin-top: 15px;
@@ -303,7 +326,7 @@
         /* Responsive */
         @media (min-width: 768px) {
              #notesList {
-                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* 2 columnas en pantallas medianas/grandes */
+                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); 
             }
         }
         @media (max-width: 600px) {
@@ -313,37 +336,33 @@
             h2 { font-size: 1.4rem; }
             input[type="date"] { width: 100%; }
             .controls, .toolbar { flex-direction: column; align-items: stretch; }
-            .toolbar > *, .controls > * { margin-bottom: 8px; } /* Espacio entre elementos apilados */
+            .toolbar > *, .controls > * { margin-bottom: 8px; } 
             .action-buttons button { width: 100%; margin-bottom: 8px; }
         }
 
-        /* --- ESTILOS PARA EL BOTÓN DE VOLVER (anteriormente .boton-bonito-notas) --- */
         .boton-volver {
             display: inline-block;
             padding: 10px 18px;
-            margin: 15px 0 25px 0; /* Margen: arriba derecha/izquierda abajo */
+            margin: 15px 0 25px 0; 
             font-size: 1rem;
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
             border-radius: 6px;
             border: none;
-            background-color: var(--secondary-color); /* Usando tu variable CSS para color secundario */
+            background-color: var(--secondary-color); 
             color: white;
             transition: background-color 0.2s ease;
             text-align: center;
         }
-
         .boton-volver .material-icons-outlined {
             vertical-align: middle;
-            margin-right: 5px; /* Espacio entre icono y texto */
+            margin-right: 5px;
             font-size: 1.2rem;
         }
-
         .boton-volver:hover {
-            background-color: var(--secondary-hover); /* Usando tu variable CSS */
+            background-color: var(--secondary-hover); 
         }
-        /* --- FIN DE ESTILOS PARA EL BOTÓN DE VOLVER --- */
 
     </style>
 </head>
@@ -351,13 +370,11 @@
 
     <div class="container">
         
-        <!-- ========= BOTÓN DE VOLVER AÑADIDO AQUÍ ========= -->
-        <div style="margin-bottom: 15px;"> <!-- Div opcional para espaciado si es necesario, o ajustar el margin del botón directamente -->
+        <div style="margin-bottom: 15px;"> 
             <a href="index.html" class="boton-volver">
                 <span class="material-icons-outlined">arrow_back</span> Volver a Planilla Principal
             </a>
         </div>
-        <!-- ========= FIN BOTÓN DE VOLVER ========= -->
 
         <h1><span class="material-icons-outlined" style="font-size: 2.5rem; vertical-align: bottom;">description</span> Notas de Campo</h1>
 
@@ -405,11 +422,16 @@
                 <label for="penColor">Color:</label>
                 <input type="color" id="penColor" value="#000000" title="Color del Pincel/Texto">
                 
-                <label for="penWidth">Grosor:</label>
-                <input type="range" id="penWidth" min="1" max="30" value="3" title="Grosor del Pincel">
+                <!-- === CONTROLES DE GROSOR MODIFICADOS === -->
+                <label for="penWidthValue">Grosor:</label>
+                <button type="button" id="decreasePenWidth" title="Disminuir Grosor" class="width-adjust-btn">-</button>
+                <input type="number" id="penWidthValue" value="3" min="1" max="50" title="Grosor del Pincel">
+                <button type="button" id="increasePenWidth" title="Aumentar Grosor" class="width-adjust-btn">+</button>
+                <input type="range" id="penWidth" min="1" max="50" value="3" title="Grosor del Pincel (Slider)" style="display: none;"> <!-- Slider oculto por defecto -->
+                <!-- === FIN CONTROLES DE GROSOR === -->
                 
                 <label for="fontSizeCanvas">Fuente:</label>
-                <input type="number" id="fontSizeCanvas" min="8" max="72" value="16" title="Tamaño del Texto en Canvas">
+                <input type="number" id="fontSizeCanvas" min="8" max="72" value="16" title="Tamaño del Texto en Canvas" class="font-size-input"> <!-- Añadida clase para estilos específicos si es necesario -->
                 
                 <button id="clearCanvas" class="secondary" title="Limpiar Pizarra"><span class="material-icons-outlined">delete_sweep</span> Limpiar</button>
             </div>
@@ -435,11 +457,9 @@
     </div>
 
     <script>
-        // --- Tu JavaScript existente (NO LO MODIFIQUÉ) ---
-        // Asegurarse de que jsPDF está cargado y Material Icons
         const { jsPDF } = window.jspdf;
 
-        // Elementos del DOM
+        // --- Selectores del DOM ---
         const noteDateInput = document.getElementById('noteDate');
         const noteTextInputDiv = document.getElementById('noteText');
         const editingNoteIdInput = document.getElementById('editingNoteId');
@@ -448,7 +468,6 @@
         const notesListDiv = document.getElementById('notesList');
         const currentDateDisplay = document.getElementById('currentDateDisplay');
 
-        // Editor de texto enriquecido
         const undoBtn = document.getElementById('undoBtn');
         const redoBtn = document.getElementById('redoBtn');
         const boldBtn = document.getElementById('boldBtn');
@@ -457,11 +476,17 @@
         const fontSizeSelect = document.getElementById('fontSizeSelect');
         const textColorInput = document.getElementById('textColorInput');
 
-        // Canvas y Dibujo
         const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d', { willReadFrequently: true }); 
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const penColorInput = document.getElementById('penColor');
-        const penWidthInput = document.getElementById('penWidth');
+        
+        // --- NUEVOS Selectores para grosor ---
+        const penWidthInput = document.getElementById('penWidth'); // El slider original (ahora oculto)
+        const decreasePenWidthBtn = document.getElementById('decreasePenWidth');
+        const increasePenWidthBtn = document.getElementById('increasePenWidth');
+        const penWidthValueInput = document.getElementById('penWidthValue'); // Input numérico
+        // --- FIN NUEVOS Selectores ---
+
         const fontSizeCanvasInput = document.getElementById('fontSizeCanvas');
         const pencilToolButton = document.getElementById('pencilTool');
         const eraserToolButton = document.getElementById('eraserTool');
@@ -474,12 +499,13 @@
         let currentTool = 'pencil';
         let lastX = 0;
         let lastY = 0;
-
         let canvasHistory = [];
         let canvasRedoStack = [];
         const MAX_HISTORY_STATES = 20;
 
+        // --- Funciones de Canvas ---
         function resizeCanvas() {
+            // ... (código existente de resizeCanvas sin cambios) ...
             const currentDrawing = canvas.toDataURL(); 
             const containerWidth = canvas.parentElement.clientWidth;
             const aspectRatio = 300 / 500;
@@ -496,7 +522,7 @@
         
         function setDefaultCanvasStyles() {
             ctx.strokeStyle = penColorInput.value;
-            ctx.lineWidth = penWidthInput.value;
+            ctx.lineWidth = penWidthValueInput.value; // MODIFICADO: Usar el input numérico
             ctx.font = `${fontSizeCanvasInput.value}px Arial`;
             ctx.fillStyle = penColorInput.value; 
             ctx.lineCap = 'round';
@@ -505,22 +531,20 @@
         }
 
         function clearCanvasOnly(saveState = true) {
+            // ... (código existente de clearCanvasOnly sin cambios) ...
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (saveState) saveCanvasState();
         }
         
         window.addEventListener('resize', resizeCanvas);
 
-        function saveCanvasState() {
-            if (canvasHistory.length >= MAX_HISTORY_STATES) {
-                canvasHistory.shift(); 
-            }
+        function saveCanvasState() { /* ... (sin cambios) ... */ 
+            if (canvasHistory.length >= MAX_HISTORY_STATES) { canvasHistory.shift(); }
             canvasHistory.push(canvas.toDataURL());
             canvasRedoStack = []; 
             updateCanvasUndoRedoButtons();
         }
-
-        function restoreCanvasState(dataURL) {
+        function restoreCanvasState(dataURL) { /* ... (sin cambios) ... */ 
             const img = new Image();
             img.onload = () => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -529,8 +553,7 @@
             }
             img.src = dataURL;
         }
-
-        undoCanvasBtn.addEventListener('click', () => {
+        undoCanvasBtn.addEventListener('click', () => { /* ... (sin cambios) ... */ 
             if (canvasHistory.length > 1) { 
                 const currentState = canvasHistory.pop();
                 canvasRedoStack.push(currentState);
@@ -539,22 +562,19 @@
             }
             updateCanvasUndoRedoButtons();
         });
-
-        redoCanvasBtn.addEventListener('click', () => {
-            if (canvasRedoStack.length > 0) {
+        redoCanvasBtn.addEventListener('click', () => { /* ... (sin cambios) ... */ 
+             if (canvasRedoStack.length > 0) {
                 const nextState = canvasRedoStack.pop();
                 canvasHistory.push(nextState);
                 restoreCanvasState(nextState);
             }
             updateCanvasUndoRedoButtons();
         });
-
-        function updateCanvasUndoRedoButtons() {
+        function updateCanvasUndoRedoButtons() { /* ... (sin cambios) ... */ 
             undoCanvasBtn.disabled = canvasHistory.length <= 1; 
             redoCanvasBtn.disabled = canvasRedoStack.length === 0;
         }
-
-        function getCanvasRelativeCoordinates(event) {
+        function getCanvasRelativeCoordinates(event) { /* ... (sin cambios) ... */ 
             const rect = canvas.getBoundingClientRect();
             let x, y;
             if (event.touches && event.touches.length > 0) {
@@ -573,9 +593,7 @@
                 const text = prompt("Introduce el texto para la pizarra:", "");
                 if (text) {
                     const { x, y } = getCanvasRelativeCoordinates(e);
-                    ctx.font = `${fontSizeCanvasInput.value}px Arial`;
-                    ctx.fillStyle = penColorInput.value;
-                    ctx.globalCompositeOperation = 'source-over';
+                    setDefaultCanvasStyles(); // Asegurar que los estilos de fuente estén actualizados
                     ctx.fillText(text, x, y);
                     saveCanvasState(); 
                 }
@@ -589,14 +607,16 @@
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
 
-            if (currentTool === 'pencil') {} 
-            else if (currentTool === 'eraser') {
+            if (currentTool === 'pencil') {
+                // Estilos ya aplicados
+            } else if (currentTool === 'eraser') {
                 ctx.globalCompositeOperation = 'destination-out';
-                ctx.lineWidth = penWidthInput.value * 2; 
+                // MODIFICADO: Usar el valor del input numérico para la goma
+                ctx.lineWidth = parseInt(penWidthValueInput.value, 10) * 2; // Hacer la goma más ancha
             }
         }
 
-        function draw(e) {
+        function draw(e) { /* ... (sin cambios) ... */ 
             e.preventDefault();
             if (!isDrawing || currentTool === 'text') return;
             const { x, y } = getCanvasRelativeCoordinates(e);
@@ -605,8 +625,7 @@
             ctx.stroke();
             [lastX, lastY] = [x, y];
         }
-
-        function stopDrawing() {
+        function stopDrawing() { /* ... (sin cambios) ... */ 
             if (!isDrawing || currentTool === 'text') return;
             isDrawing = false;
             ctx.closePath();
@@ -622,24 +641,24 @@
         canvas.addEventListener('touchend', stopDrawing);
         canvas.addEventListener('touchcancel', stopDrawing);
 
-        function setActiveToolButton(activeButton) {
+        function setActiveToolButton(activeButton) { /* ... (sin cambios) ... */ 
             [pencilToolButton, eraserToolButton, textToolCanvasButton].forEach(btn => btn.classList.remove('active-tool'));
             if (activeButton) activeButton.classList.add('active-tool');
         }
 
-        pencilToolButton.addEventListener('click', () => {
+        pencilToolButton.addEventListener('click', () => { /* ... (sin cambios, pero setDefaultCanvasStyles usará el nuevo input de grosor) ... */ 
             currentTool = 'pencil';
             canvas.style.cursor = 'crosshair';
             setActiveToolButton(pencilToolButton);
             setDefaultCanvasStyles();
         });
-        eraserToolButton.addEventListener('click', () => {
+        eraserToolButton.addEventListener('click', () => { /* ... (sin cambios, pero setDefaultCanvasStyles y startDrawing usarán el nuevo input de grosor) ... */ 
             currentTool = 'eraser';
             canvas.style.cursor = 'grab';
             setActiveToolButton(eraserToolButton);
             setDefaultCanvasStyles(); 
         });
-        textToolCanvasButton.addEventListener('click', () => {
+        textToolCanvasButton.addEventListener('click', () => { /* ... (sin cambios) ... */
             currentTool = 'text';
             canvas.style.cursor = 'text';
             setActiveToolButton(textToolCanvasButton);
@@ -647,10 +666,51 @@
         });
         clearCanvasButton.addEventListener('click', () => clearCanvasOnly(true)); 
         penColorInput.addEventListener('change', () => setDefaultCanvasStyles() );
-        penWidthInput.addEventListener('input', () => setDefaultCanvasStyles() );
-        fontSizeCanvasInput.addEventListener('input', () => setDefaultCanvasStyles() );
+        fontSizeCanvasInput.addEventListener('input', () => setDefaultCanvasStyles() ); // 'input' para actualización inmediata
 
-        function formatDoc(command, value = null) {
+        // --- NUEVA LÓGICA PARA BOTONES +/- Y INPUT NUMÉRICO DE GROSOR ---
+        function updatePenWidthDisplayAndCanvas(newValue) {
+            let newWidth = parseInt(newValue, 10);
+            const minWidth = 1;
+            const maxWidth = 50; // Puedes ajustar este máximo
+
+            if (isNaN(newWidth)) newWidth = 3; // Valor por defecto si no es número
+            newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+
+            penWidthValueInput.value = newWidth; // Actualizar el input numérico
+            if (penWidthInput) penWidthInput.value = newWidth; // Sincronizar el slider si aún existe y está visible
+            setDefaultCanvasStyles(); // Aplicar el nuevo grosor al canvas
+        }
+
+        decreasePenWidthBtn.addEventListener('click', () => {
+            updatePenWidthDisplayAndCanvas(parseInt(penWidthValueInput.value, 10) - 1);
+        });
+
+        increasePenWidthBtn.addEventListener('click', () => {
+            updatePenWidthDisplayAndCanvas(parseInt(penWidthValueInput.value, 10) + 1);
+        });
+
+        penWidthValueInput.addEventListener('change', (e) => { // 'change' se dispara cuando pierde el foco o se presiona Enter
+            updatePenWidthDisplayAndCanvas(e.target.value);
+        });
+        penWidthValueInput.addEventListener('input', (e) => { // 'input' para respuesta más inmediata mientras se escribe (opcional)
+             // Podrías añadir una validación aquí si quieres que el canvas se actualice mientras escribe
+             // pero 'change' es más seguro para evitar actualizaciones con valores incompletos.
+             // Por ahora, lo dejamos con 'change' para el input numérico.
+        });
+        
+        // Si mantienes el slider original visible y quieres sincronización:
+        if (penWidthInput && penWidthInput.style.display !== 'none') {
+            penWidthInput.addEventListener('input', (e) => {
+                penWidthValueInput.value = e.target.value; // Actualizar el numérico desde el slider
+                setDefaultCanvasStyles();
+            });
+        }
+        // --- FIN NUEVA LÓGICA DE GROSOR ---
+
+
+        // --- Formato de Texto ---
+        function formatDoc(command, value = null) { /* ... (sin cambios) ... */ 
             document.execCommand(command, false, value);
             noteTextInputDiv.focus();
         }
@@ -662,20 +722,18 @@
         fontSizeSelect.addEventListener('change', (e) => formatDoc('fontSize', e.target.value));
         textColorInput.addEventListener('input', (e) => formatDoc('foreColor', e.target.value));
 
-        function getNotesForDate(dateStr) {
+        // --- Lógica de Notas (guardar, cargar, etc.) ---
+        function getNotesForDate(dateStr) { /* ... (sin cambios) ... */ 
             const notes = localStorage.getItem(`notes_${dateStr}`);
             return notes ? JSON.parse(notes) : [];
         }
-
-        function saveNotesForDate(dateStr, notes) {
+        function saveNotesForDate(dateStr, notes) { /* ... (sin cambios) ... */ 
             localStorage.setItem(`notes_${dateStr}`, JSON.stringify(notes));
         }
-        
-        function isContentTooLong(element) {
+        function isContentTooLong(element) { /* ... (sin cambios) ... */ 
             return element.scrollHeight > element.clientHeight;
         }
-
-        function displayNotes() {
+        function displayNotes() { /* ... (sin cambios) ... */ 
             const selectedDate = noteDateInput.value;
             if (!selectedDate) {
                 notesListDiv.innerHTML = '<p>Por favor, selecciona una fecha para ver las notas.</p>';
@@ -738,7 +796,7 @@
             });
         }
         
-        saveNoteButton.addEventListener('click', () => {
+        saveNoteButton.addEventListener('click', () => { /* ... (sin cambios) ... */ 
             const selectedDate = noteDateInput.value;
             const textHTML = noteTextInputDiv.innerHTML;
             const drawingDataUrl = (canvasHistory.length > 0 && canvasHistory[canvasHistory.length - 1] !== getEmptyCanvasDataUrl()) 
@@ -774,15 +832,13 @@
             clearEditorFields();
             displayNotes();
         });
-
-        function getEmptyCanvasDataUrl() {
-            const tempC = document.createElement('canvas');
+        function getEmptyCanvasDataUrl() { /* ... (sin cambios) ... */ 
+             const tempC = document.createElement('canvas');
             tempC.width = canvas.width;
             tempC.height = canvas.height;
             return tempC.toDataURL();
         }
-
-        function clearEditorFields() {
+        function clearEditorFields() { /* ... (asegurarse de que penWidthValueInput.value se resetea) ... */ 
             noteTextInputDiv.innerHTML = '';
             clearCanvasOnly(false); 
             canvasHistory = [getEmptyCanvasDataUrl()]; 
@@ -801,13 +857,14 @@
             fontSizeSelect.value = '3';
             
             penColorInput.value = '#000000';
-            penWidthInput.value = 3;
+            penWidthValueInput.value = 3; // MODIFICADO: Resetear el input numérico
+            if(penWidthInput) penWidthInput.value = 3; // Sincronizar slider si existe
             fontSizeCanvasInput.value = 16;
+            setDefaultCanvasStyles(); // Aplicar el grosor reseteado
         }
         
         clearEditorButton.addEventListener('click', clearEditorFields);
-
-        window.editNote = function(noteId) {
+        window.editNote = function(noteId) { /* ... (sin cambios) ... */ 
             const selectedDate = noteDateInput.value;
             const notes = getNotesForDate(selectedDate);
             const noteToEdit = notes.find(note => note.id === noteId);
@@ -837,8 +894,7 @@
                 document.querySelector('.note-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
-
-        window.deleteNote = function(noteId) {
+        window.deleteNote = function(noteId) { /* ... (sin cambios) ... */ 
             if (!confirm('¿Estás seguro de que quieres eliminar esta nota? Esta acción no se puede deshacer.')) return;
             const selectedDate = noteDateInput.value;
             let notes = getNotesForDate(selectedDate);
@@ -846,25 +902,21 @@
             saveNotesForDate(selectedDate, notes);
             displayNotes();
         }
-
-        noteDateInput.addEventListener('change', () => {
+        noteDateInput.addEventListener('change', () => { /* ... (sin cambios) ... */ 
             clearEditorFields();
             displayNotes();
         });
-
-        function getSelectedNoteIds() {
+        function getSelectedNoteIds() { /* ... (sin cambios) ... */ 
             const checkboxes = document.querySelectorAll('.note-checkbox:checked');
             return Array.from(checkboxes).map(cb => cb.dataset.id);
         }
-        
-        function getNotesByIds(noteIds) {
+        function getNotesByIds(noteIds) { /* ... (sin cambios) ... */ 
             const selectedDate = noteDateInput.value;
             const notes = getNotesForDate(selectedDate);
             return notes.filter(note => noteIds.includes(note.id)).sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
         }
-
-        document.getElementById('mergeNotes').addEventListener('click', () => {
-            const selectedIds = getSelectedNoteIds();
+        document.getElementById('mergeNotes').addEventListener('click', () => { /* ... (sin cambios) ... */ 
+             const selectedIds = getSelectedNoteIds();
             if (selectedIds.length < 1) { alert("Selecciona al menos una nota para cargar o unir."); return; }
             
             const notesToMerge = getNotesByIds(selectedIds);
@@ -898,8 +950,7 @@
             saveNoteButton.innerHTML = '<span class="material-icons-outlined">save</span> Guardar Nota Combinada';
             document.querySelector('.note-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
-
-        function htmlToPlainText(html) {
+        function htmlToPlainText(html) { /* ... (sin cambios) ... */ 
             const tempDiv = document.createElement("div");
             html = html.replace(/<hr[^>]*>/gi, '\n\n--- SEPARADOR ---\n\n');
             html = html.replace(/<br\s*\/?>/gi, '\n');
@@ -911,8 +962,7 @@
             tempDiv.innerHTML = html;
             return (tempDiv.textContent || tempDiv.innerText || "").replace(/\n\s*\n/g, '\n\n').trim();
         }
-
-        async function exportNotesToPdf(notesToExport) {
+        async function exportNotesToPdf(notesToExport) { /* ... (sin cambios) ... */ 
             if (notesToExport.length === 0) { alert("No hay notas para exportar."); return; }
 
             const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -987,21 +1037,20 @@
             }
             doc.save(`notas_de_campo_${noteDateInput.value || 'seleccionadas'}_${new Date().toISOString().slice(0,10)}.pdf`);
         }
-
-        document.getElementById('exportToPdf').addEventListener('click', async () => {
+        document.getElementById('exportToPdf').addEventListener('click', async () => { /* ... (sin cambios) ... */ 
             const selectedIds = getSelectedNoteIds();
             if (selectedIds.length === 0) { alert("Selecciona al menos una nota para exportar."); return; }
             const notesToExport = getNotesByIds(selectedIds);
             await exportNotesToPdf(notesToExport);
         });
-        
-        document.getElementById('exportAllToPdf').addEventListener('click', async () => {
+        document.getElementById('exportAllToPdf').addEventListener('click', async () => { /* ... (sin cambios) ... */ 
             const selectedDate = noteDateInput.value;
             if (!selectedDate) { alert("Selecciona una fecha para exportar todas sus notas."); return; }
             const notesToExport = getNotesForDate(selectedDate).sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
             await exportNotesToPdf(notesToExport);
         });
 
+        // --- Inicialización ---
         function initializeApp() {
             const today = new Date().toISOString().split('T')[0];
             noteDateInput.value = today;
@@ -1010,13 +1059,12 @@
             canvasHistory = [getEmptyCanvasDataUrl()]; 
             updateCanvasUndoRedoButtons();
 
-            setDefaultCanvasStyles();
+            setDefaultCanvasStyles(); // Asegura que el grosor inicial se aplique
             setActiveToolButton(pencilToolButton);
             displayNotes();
         }
 
         initializeApp();
-
     </script>
 </body>
 </html>

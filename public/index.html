@@ -53,13 +53,27 @@
 
 
         .actions, .saved-planillas-section, .auth-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
-        button { background-color: #1877f2; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px; font-size: 0.95rem; font-weight: 600; transition: background-color 0.2s; }
-        button:hover { background-color: #166fe5; }
-        button:disabled { background-color: #bcc0c4; color:#777; cursor: not-allowed; }
+        button, a.button-link-style { /* MODIFICADO: Añadido a.button-link-style */
+            background-color: #1877f2; 
+            color: white; 
+            padding: 10px 18px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            margin-right: 10px; 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            transition: background-color 0.2s;
+            text-decoration: none; /* Para los <a> */
+            display: inline-block; /* Para que padding y margin funcionen bien en <a> */
+        }
+        button:hover, a.button-link-style:hover { background-color: #166fe5; } /* MODIFICADO */
+        button:disabled, a.button-link-style.disabled { background-color: #bcc0c4; color:#777; cursor: not-allowed; } /* MODIFICADO */
+        
         button.add-note-row { background-color: #42b72a; margin-bottom: 12px; }
         button.add-note-row:hover { background-color: #36a420; }
-        #deletePlanilla, #deleteMiPlanilla { background-color: #fa3e3e; } /* Ya estaba */
-        #deletePlanilla:hover, #deleteMiPlanilla:hover { background-color: #e03030; } /* Ya estaba */
+        #deletePlanilla, #deleteMiPlanilla { background-color: #fa3e3e; } 
+        #deletePlanilla:hover, #deleteMiPlanilla:hover { background-color: #e03030; } 
         
         .saved-planillas-section select { padding: 10px; margin-right: 10px; border-radius: 6px; border: 1px solid #dddfe2; min-width: 250px; display: block; margin-bottom: 10px; font-size:0.95rem; }
         .auth-section input { margin-bottom:12px; }
@@ -103,6 +117,14 @@
         .accordion-arrow { font-size: 1.2rem; transition: transform 0.3s ease; }
         .accordion-header.active .accordion-arrow { transform: rotate(90deg); }
 
+        /* NUEVO ESTILO PARA CONTENEDOR DE BOTONES */
+        .botones-inline {
+            display: flex; /* Activa Flexbox */
+            gap: 10px;     /* Espacio entre los botones */
+            align-items: center; /* Alinea verticalmente los botones si tuvieran alturas diferentes */
+            margin-top: 5px; /* Un pequeño margen arriba si es necesario */
+        }
+        /* Fin de nuevo estilo */
 
         /* DOCX Styles (se mantienen igual) */
         .docx-title { font-size: 22pt; text-align: center; margin-bottom: 20px; font-weight: bold; }
@@ -121,7 +143,8 @@
 <body>
     <div class="container">
         <div class="auth-section">
-            <div id="userInfo" class="user-info hidden">
+            <!-- ... (tu sección de autenticación no cambia) ... -->
+             <div id="userInfo" class="user-info hidden">
                 Bienvenido/a, <span id="userEmailDisplay"></span>.
                 <button id="logoutButton">Cerrar Sesión</button>
             </div>
@@ -138,11 +161,13 @@
         </div>
 
         <h1>Planilla de Observación de Clase</h1>
+        <!-- ... (resto de tu HTML hasta la sección de planillas guardadas) ... -->
         <p>Utiliza esta planilla para registrar tus observaciones. Las secciones pueden desplegarse haciendo clic en sus títulos.</p>
 
         <h2> Planilla modelo de observación de clase.</h2>
         <form id="observationForm">
-            <!-- Datos Iniciales (siempre visible, no desplegable) -->
+            <!-- ... (todo tu formulario no cambia) ... -->
+             <!-- Datos Iniciales (siempre visible, no desplegable) -->
             <div class="form-section">
                 <h3>Datos Iniciales</h3>
                 <label for="observador">Observador/a: (Tu nombre o el del autor original)</label>
@@ -280,8 +305,11 @@
                 <select id="misPlanillasList">
                     <option value="">-- Selecciona una de tus planillas --</option>
                 </select>
-                <button type="button" id="loadMiPlanilla">Cargar Mi Planilla</button>
-                <button type="button" id="deleteMiPlanilla">Eliminar Mi Planilla</button>
+                <!-- MODIFICADO: Contenedor para botones inline -->
+                <div class="botones-inline">
+                    <button type="button" id="loadMiPlanilla">Cargar Mi Planilla</button>
+                    <button type="button" id="deleteMiPlanilla">Eliminar Mi Planilla</button>
+                </div>
             </div>
 
             <div class="saved-planillas-section">
@@ -289,12 +317,17 @@
                 <select id="otrasPlanillasList">
                     <option value="">-- Selecciona una planilla para ver --</option>
                 </select>
-                <button type="button" id="loadOtraPlanilla">Ver Planilla de Compañero</button>
+                <!-- MODIFICADO: Contenedor para botones inline -->
+                <div class="botones-inline">
+                    <button type="button" id="loadOtraPlanilla">Ver Planilla de Compañero</button>
+                    <a href="Notas de campo.html" class="button-link-style">Ir a Notas de Campo</a> <!-- NUEVO BOTÓN/ENLACE -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+    // --- Tu JavaScript existente (NO LO MODIFIQUÉ) ---
    document.addEventListener('DOMContentLoaded', () => {
     // --- Configuración e Inicialización de Firebase ---
     const firebaseConfig = {
@@ -866,6 +899,6 @@
         } catch (error) { console.error("Error generando DOCX:", error); alert("Error al generar el archivo .docx.\n" + error.message); }
     });
 });
-</script>
+    </script>
 </body>
 </html>

@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas de Campo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #28a745; /* Verde para "campo" */
+            --primary-hover: #218838;
+            --secondary-color: #6c757d;
+            --secondary-hover: #545b62;
+            --danger-color: #dc3545;
+            --danger-hover: #c82333;
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --border-color: #ced4da;
+            --canvas-bg: #FFFFFF;
+            --toolbar-bg: #e9ecef;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            width: 95%;
+            max-width: 900px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        h1 { text-align: center; font-weight: 700; font-size: 2.2rem; }
+        h2 { 
+            border-bottom: 2px solid var(--primary-color); 
+            padding-bottom: 10px; 
+            font-weight: 500;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2 .material-icons-outlined { font-size: 1.8rem; }
+
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        input[type="date"], input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+            background-color: #fff;
+        }
+        input[type="date"] { width: auto; min-width: 220px;}
+
+        .editable-area {
+            min-height: 180px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            line-height: 1.7;
+            background-color: #fff;
+            overflow-y: auto;
+        }
+        .editable-area:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(40,167,69,.25);
+        }
+        .editable-area[contenteditable=true]:empty:before{
+          content: attr(placeholder);
+          pointer-events: none;
+          color: #adb5bd;
+          display: block;
+        }
+
+
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--toolbar-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            align-items: center;
+        }
+        .toolbar button, .toolbar input[type="color"], .toolbar select, .toolbar input[type="number"] {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+            border: 1px solid #adb5bd;
+            border-radius: 4px;
+            background-color: #fff;
+            color: var(--dark-text);
+            cursor: pointer;
+        }
+        .toolbar button:hover { background-color: #e2e6ea; }
+        .toolbar input[type="color"] {
+            padding: 0;
+            height: 38px;
+            width: 40px;
+        }
+        .toolbar select, .toolbar input[type="number"] {
+            height: 38px;
+            padding: 0 8px;
+        }
+        .toolbar label { margin-bottom: 0; margin-right: 5px; font-weight: normal;}
+        .toolbar .material-icons-outlined { vertical-align: middle; font-size: 1.2rem; }
+
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        button .material-icons-outlined { font-size: 1.2rem; }
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.danger { background-color: var(--danger-color); }
+        button.danger:hover { background-color: var(--danger-hover); }
+        button.secondary { background-color: var(--secondary-color); }
+        button.secondary:hover { background-color: var(--secondary-hover); }
+        button.active-tool {
+            background-color: var(--primary-hover);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+            color: white;
+            border-color: var(--primary-hover);
+        }
+        .toolbar button.active-tool { background-color: var(--primary-color); color:white;}
+
+
+        #drawingCanvas {
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: crosshair;
+            touch-action: none;
+            background-color: var(--canvas-bg);
+            max-width: 100%;
+            height: auto;
+            display: block; /* remove extra space below */
+        }
+
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            background-color: var(--toolbar-bg);
+            border-radius: 6px;
+        }
+        .controls button {
+             background-color: #fff;
+             color: var(--dark-text);
+             border: 1px solid #adb5bd;
+        }
+        .controls button:hover { background-color: #e2e6ea; }
+        .controls button.active-tool { background-color: var(--primary-color); color:white; }
+
+        .controls input[type="color"], .controls input[type="range"], .controls input[type="number"] {
+            padding: 0;
+            height: 38px;
+            border: 1px solid #adb5bd;
+            border-radius: 4px;
+        }
+        .controls input[type="range"] { flex-grow: 1; max-width: 150px; }
+        .controls input[type="number"] { width: 70px; padding: 0 8px; text-align: center; }
+        .controls label { margin-bottom: 0; margin-right: 5px; font-weight: normal;}
+
+        /* Lista de Notas */
+        #notesList {
+            display: grid;
+            grid-template-columns: 1fr; /* Una columna por defecto */
+            gap: 15px;
+        }
+
+        .saved-note-item {
+            background-color: #fff;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            display: flex;
+            flex-direction: column;
+        }
+        .saved-note-item .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .saved-note-item .note-header h4 {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #555;
+            font-weight: normal;
+        }
+         .saved-note-item .note-header input[type="checkbox"] {
+            margin-right: 0; /* Ya no se necesita tanto espacio */
+            transform: scale(1.1);
+        }
+        .saved-note-item .note-text-content {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            word-break: break-word;
+            max-height: 100px; /* Limitar altura inicial */
+            overflow: hidden;
+            text-overflow: ellipsis; /* No funciona bien con multilínea HTML */
+            position: relative; /* Para el "leer más" */
+        }
+        .saved-note-item .note-text-content.expanded {
+            max-height: none;
+        }
+        .saved-note-item .read-more-btn {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none; /* Se muestra por JS si es necesario */
+        }
+
+        .saved-note-item img {
+            max-width: 100%;
+            max-height: 150px; /* Limitar altura de preview */
+            object-fit: cover;
+            height: auto;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+            border-radius: 4px;
+            background-color: var(--canvas-bg);
+            cursor: pointer; /* Para ampliar imagen en el futuro */
+        }
+        .saved-note-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+       
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: flex-start;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+             #notesList {
+                grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); /* 2 columnas en pantallas medianas/grandes */
+            }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            input[type="date"] { width: 100%; }
+            .controls, .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar > *, .controls > * { margin-bottom: 8px; } /* Espacio entre elementos apilados */
+            .action-buttons button { width: 100%; margin-bottom: 8px; }
+        }
+
+        /* --- ESTILOS PARA EL BOTÓN DE VOLVER (anteriormente .boton-bonito-notas) --- */
+        .boton-volver {
+            display: inline-block;
+            padding: 10px 18px;
+            margin: 15px 0 25px 0; /* Margen: arriba derecha/izquierda abajo */
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--secondary-color); /* Usando tu variable CSS para color secundario */
+            color: white;
+            transition: background-color 0.2s ease;
+            text-align: center;
+        }
+
+        .boton-volver .material-icons-outlined {
+            vertical-align: middle;
+            margin-right: 5px; /* Espacio entre icono y texto */
+            font-size: 1.2rem;
+        }
+
+        .boton-volver:hover {
+            background-color: var(--secondary-hover); /* Usando tu variable CSS */
+        }
+        /* --- FIN DE ESTILOS PARA EL BOTÓN DE VOLVER --- */
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- ========= BOTÓN DE VOLVER AÑADIDO AQUÍ ========= -->
+        <div style="margin-bottom: 15px;"> <!-- Div opcional para espaciado si es necesario, o ajustar el margin del botón directamente -->
+            <a href="index.html" class="boton-volver">
+                <span class="material-icons-outlined">arrow_back</span> Volver a Planilla Principal
+            </a>
+        </div>
+        <!-- ========= FIN BOTÓN DE VOLVER ========= -->
+
+        <h1><span class="material-icons-outlined" style="font-size: 2.5rem; vertical-align: bottom;">description</span> Notas de Campo</h1>
+
+        <div class="form-group">
+            <label for="noteDate">Selecciona Fecha:</label>
+            <input type="date" id="noteDate">
+        </div>
+
+        <div class="note-editor">
+            <h2><span class="material-icons-outlined">edit_note</span> Nueva Nota / Editor</h2>
+            <input type="hidden" id="editingNoteId">
+            
+            <div class="toolbar">
+                <button id="undoBtn" title="Deshacer Texto"><span class="material-icons-outlined">undo</span></button>
+                <button id="redoBtn" title="Rehacer Texto"><span class="material-icons-outlined">redo</span></button>
+                <button id="boldBtn" title="Negrita"><b>B</b></button>
+                <button id="italicBtn" title="Cursiva"><i>I</i></button>
+                <button id="underlineBtn" title="Subrayado"><u>U</u></button>
+                <label for="fontSizeSelect">Tamaño:</label>
+                <select id="fontSizeSelect" title="Tamaño de Fuente">
+                    <option value="1">Pequeño</option>
+                    <option value="2">Normal Pequeño</option>
+                    <option value="3" selected>Normal</option>
+                    <option value="4">Mediano</option>
+                    <option value="5">Grande</option>
+                    <option value="6">Muy Grande</option>
+                    <option value="7">Enorme</option>
+                </select>
+                <label for="textColorInput">Color:</label>
+                <input type="color" id="textColorInput" value="#000000" title="Color de Texto">
+            </div>
+            <div id="noteText" class="editable-area" contenteditable="true" placeholder="Escribe tu nota aquí..."></div>
+        </div>
+
+        <div class="drawing-pad-container">
+            <h3><span class="material-icons-outlined">draw</span> Pizarra de Dibujo</h3>
+            <canvas id="drawingCanvas" width="500" height="300"></canvas>
+            <div class="controls">
+                <button id="undoCanvasBtn" title="Deshacer Dibujo" disabled><span class="material-icons-outlined">undo</span></button>
+                <button id="redoCanvasBtn" title="Rehacer Dibujo" disabled><span class="material-icons-outlined">redo</span></button>
+                <button id="pencilTool" title="Lápiz"><span class="material-icons-outlined">edit</span> Lápiz</button>
+                <button id="eraserTool" title="Goma"><span class="material-icons-outlined">layers_clear</span> Goma</button>
+                <button id="textToolCanvas" title="Texto en Pizarra"><span class="material-icons-outlined">title</span> Texto</button>
+                
+                <label for="penColor">Color:</label>
+                <input type="color" id="penColor" value="#000000" title="Color del Pincel/Texto">
+                
+                <label for="penWidth">Grosor:</label>
+                <input type="range" id="penWidth" min="1" max="30" value="3" title="Grosor del Pincel">
+                
+                <label for="fontSizeCanvas">Fuente:</label>
+                <input type="number" id="fontSizeCanvas" min="8" max="72" value="16" title="Tamaño del Texto en Canvas">
+                
+                <button id="clearCanvas" class="secondary" title="Limpiar Pizarra"><span class="material-icons-outlined">delete_sweep</span> Limpiar</button>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="saveNote"><span class="material-icons-outlined">save</span> Guardar Nota</button>
+            <button id="clearEditor" class="secondary"><span class="material-icons-outlined">clear_all</span> Limpiar Editor</button>
+        </div>
+
+    </div>
+
+    <div class="container saved-notes">
+        <h2><span class="material-icons-outlined">event_note</span> Notas Guardadas (<span id="currentDateDisplay"></span>)</h2>
+        <div id="notesList">
+            <p>No hay notas para la fecha seleccionada.</p>
+        </div>
+        <div class="action-buttons" style="margin-top: 20px;">
+            <button id="mergeNotes" class="secondary"><span class="material-icons-outlined">merge_type</span> Unir Seleccionadas</button>
+            <button id="exportToPdf" class="secondary"><span class="material-icons-outlined">picture_as_pdf</span> Exportar Sel. a PDF</button>
+            <button id="exportAllToPdf" class="secondary"><span class="material-icons-outlined">collections_bookmark</span> Exportar Todas PDF</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Tu JavaScript existente (NO LO MODIFIQUÉ) ---
+        // Asegurarse de que jsPDF está cargado y Material Icons
+        const { jsPDF } = window.jspdf;
+
+        // Elementos del DOM
+        const noteDateInput = document.getElementById('noteDate');
+        const noteTextInputDiv = document.getElementById('noteText');
+        const editingNoteIdInput = document.getElementById('editingNoteId');
+        const saveNoteButton = document.getElementById('saveNote');
+        const clearEditorButton = document.getElementById('clearEditor');
+        const notesListDiv = document.getElementById('notesList');
+        const currentDateDisplay = document.getElementById('currentDateDisplay');
+
+        // Editor de texto enriquecido
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const boldBtn = document.getElementById('boldBtn');
+        const italicBtn = document.getElementById('italicBtn');
+        const underlineBtn = document.getElementById('underlineBtn');
+        const fontSizeSelect = document.getElementById('fontSizeSelect');
+        const textColorInput = document.getElementById('textColorInput');
+
+        // Canvas y Dibujo
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true }); 
+        const penColorInput = document.getElementById('penColor');
+        const penWidthInput = document.getElementById('penWidth');
+        const fontSizeCanvasInput = document.getElementById('fontSizeCanvas');
+        const pencilToolButton = document.getElementById('pencilTool');
+        const eraserToolButton = document.getElementById('eraserTool');
+        const textToolCanvasButton = document.getElementById('textToolCanvas');
+        const clearCanvasButton = document.getElementById('clearCanvas');
+        const undoCanvasBtn = document.getElementById('undoCanvasBtn');
+        const redoCanvasBtn = document.getElementById('redoCanvasBtn');
+        
+        let isDrawing = false;
+        let currentTool = 'pencil';
+        let lastX = 0;
+        let lastY = 0;
+
+        let canvasHistory = [];
+        let canvasRedoStack = [];
+        const MAX_HISTORY_STATES = 20;
+
+        function resizeCanvas() {
+            const currentDrawing = canvas.toDataURL(); 
+            const containerWidth = canvas.parentElement.clientWidth;
+            const aspectRatio = 300 / 500;
+            canvas.width = containerWidth;
+            canvas.height = containerWidth * aspectRatio;
+            
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                setDefaultCanvasStyles(); 
+            }
+            img.src = currentDrawing; 
+        }
+        
+        function setDefaultCanvasStyles() {
+            ctx.strokeStyle = penColorInput.value;
+            ctx.lineWidth = penWidthInput.value;
+            ctx.font = `${fontSizeCanvasInput.value}px Arial`;
+            ctx.fillStyle = penColorInput.value; 
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalCompositeOperation = 'source-over';
+        }
+
+        function clearCanvasOnly(saveState = true) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (saveState) saveCanvasState();
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+
+        function saveCanvasState() {
+            if (canvasHistory.length >= MAX_HISTORY_STATES) {
+                canvasHistory.shift(); 
+            }
+            canvasHistory.push(canvas.toDataURL());
+            canvasRedoStack = []; 
+            updateCanvasUndoRedoButtons();
+        }
+
+        function restoreCanvasState(dataURL) {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                setDefaultCanvasStyles(); 
+            }
+            img.src = dataURL;
+        }
+
+        undoCanvasBtn.addEventListener('click', () => {
+            if (canvasHistory.length > 1) { 
+                const currentState = canvasHistory.pop();
+                canvasRedoStack.push(currentState);
+                const prevState = canvasHistory[canvasHistory.length - 1];
+                restoreCanvasState(prevState);
+            }
+            updateCanvasUndoRedoButtons();
+        });
+
+        redoCanvasBtn.addEventListener('click', () => {
+            if (canvasRedoStack.length > 0) {
+                const nextState = canvasRedoStack.pop();
+                canvasHistory.push(nextState);
+                restoreCanvasState(nextState);
+            }
+            updateCanvasUndoRedoButtons();
+        });
+
+        function updateCanvasUndoRedoButtons() {
+            undoCanvasBtn.disabled = canvasHistory.length <= 1; 
+            redoCanvasBtn.disabled = canvasRedoStack.length === 0;
+        }
+
+        function getCanvasRelativeCoordinates(event) {
+            const rect = canvas.getBoundingClientRect();
+            let x, y;
+            if (event.touches && event.touches.length > 0) {
+                x = event.touches[0].clientX - rect.left;
+                y = event.touches[0].clientY - rect.top;
+            } else {
+                x = event.clientX - rect.left;
+                y = event.clientY - rect.top;
+            }
+            return { x, y };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            if (currentTool === 'text') {
+                const text = prompt("Introduce el texto para la pizarra:", "");
+                if (text) {
+                    const { x, y } = getCanvasRelativeCoordinates(e);
+                    ctx.font = `${fontSizeCanvasInput.value}px Arial`;
+                    ctx.fillStyle = penColorInput.value;
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.fillText(text, x, y);
+                    saveCanvasState(); 
+                }
+                return;
+            }
+            isDrawing = true;
+            const { x, y } = getCanvasRelativeCoordinates(e);
+            [lastX, lastY] = [x, y];
+            
+            setDefaultCanvasStyles(); 
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+
+            if (currentTool === 'pencil') {} 
+            else if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = penWidthInput.value * 2; 
+            }
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (!isDrawing || currentTool === 'text') return;
+            const { x, y } = getCanvasRelativeCoordinates(e);
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            [lastX, lastY] = [x, y];
+        }
+
+        function stopDrawing() {
+            if (!isDrawing || currentTool === 'text') return;
+            isDrawing = false;
+            ctx.closePath();
+            saveCanvasState(); 
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing);
+
+        function setActiveToolButton(activeButton) {
+            [pencilToolButton, eraserToolButton, textToolCanvasButton].forEach(btn => btn.classList.remove('active-tool'));
+            if (activeButton) activeButton.classList.add('active-tool');
+        }
+
+        pencilToolButton.addEventListener('click', () => {
+            currentTool = 'pencil';
+            canvas.style.cursor = 'crosshair';
+            setActiveToolButton(pencilToolButton);
+            setDefaultCanvasStyles();
+        });
+        eraserToolButton.addEventListener('click', () => {
+            currentTool = 'eraser';
+            canvas.style.cursor = 'grab';
+            setActiveToolButton(eraserToolButton);
+            setDefaultCanvasStyles(); 
+        });
+        textToolCanvasButton.addEventListener('click', () => {
+            currentTool = 'text';
+            canvas.style.cursor = 'text';
+            setActiveToolButton(textToolCanvasButton);
+            setDefaultCanvasStyles();
+        });
+        clearCanvasButton.addEventListener('click', () => clearCanvasOnly(true)); 
+        penColorInput.addEventListener('change', () => setDefaultCanvasStyles() );
+        penWidthInput.addEventListener('input', () => setDefaultCanvasStyles() );
+        fontSizeCanvasInput.addEventListener('input', () => setDefaultCanvasStyles() );
+
+        function formatDoc(command, value = null) {
+            document.execCommand(command, false, value);
+            noteTextInputDiv.focus();
+        }
+        undoBtn.addEventListener('click', () => formatDoc('undo'));
+        redoBtn.addEventListener('click', () => formatDoc('redo'));
+        boldBtn.addEventListener('click', () => formatDoc('bold'));
+        italicBtn.addEventListener('click', () => formatDoc('italic'));
+        underlineBtn.addEventListener('click', () => formatDoc('underline'));
+        fontSizeSelect.addEventListener('change', (e) => formatDoc('fontSize', e.target.value));
+        textColorInput.addEventListener('input', (e) => formatDoc('foreColor', e.target.value));
+
+        function getNotesForDate(dateStr) {
+            const notes = localStorage.getItem(`notes_${dateStr}`);
+            return notes ? JSON.parse(notes) : [];
+        }
+
+        function saveNotesForDate(dateStr, notes) {
+            localStorage.setItem(`notes_${dateStr}`, JSON.stringify(notes));
+        }
+        
+        function isContentTooLong(element) {
+            return element.scrollHeight > element.clientHeight;
+        }
+
+        function displayNotes() {
+            const selectedDate = noteDateInput.value;
+            if (!selectedDate) {
+                notesListDiv.innerHTML = '<p>Por favor, selecciona una fecha para ver las notas.</p>';
+                currentDateDisplay.textContent = 'Ninguna';
+                return;
+            }
+            currentDateDisplay.textContent = new Date(selectedDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            const notes = getNotesForDate(selectedDate);
+            notesListDiv.innerHTML = ''; 
+
+            if (notes.length === 0) {
+                notesListDiv.innerHTML = '<p>No hay notas guardadas para esta fecha.</p>';
+                return;
+            }
+
+            notes.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)); 
+
+            notes.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.classList.add('saved-note-item');
+                noteEl.dataset.id = note.id;
+
+                let contentHTML = `
+                    <div class="note-header">
+                        <h4>Nota del ${new Date(note.createdAt).toLocaleString('es-ES', {day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'})}</h4>
+                        <input type="checkbox" class="note-checkbox" data-id="${note.id}" title="Seleccionar para acciones">
+                    </div>`;
+                
+                const textContentDiv = document.createElement('div');
+                textContentDiv.classList.add('note-text-content');
+                textContentDiv.innerHTML = note.text; 
+                
+                contentHTML += textContentDiv.outerHTML; 
+
+                if (note.drawingDataUrl && note.drawingDataUrl !== "data:,") {
+                    contentHTML += `<img src="${note.drawingDataUrl}" alt="Dibujo de la nota">`;
+                }
+                contentHTML += `
+                    <div class="saved-note-actions">
+                        <button onclick="editNote('${note.id}')"><span class="material-icons-outlined">edit</span> Editar</button>
+                        <button class="danger" onclick="deleteNote('${note.id}')"><span class="material-icons-outlined">delete</span> Eliminar</button>
+                    </div>
+                `;
+                noteEl.innerHTML = contentHTML;
+                notesListDiv.appendChild(noteEl);
+                
+                const actualTextContentDiv = noteEl.querySelector('.note-text-content');
+                if (isContentTooLong(actualTextContentDiv)) {
+                    const readMoreBtn = document.createElement('span');
+                    readMoreBtn.classList.add('read-more-btn');
+                    readMoreBtn.textContent = 'Leer más...';
+                    readMoreBtn.style.display = 'block';
+                    readMoreBtn.onclick = () => {
+                        actualTextContentDiv.classList.toggle('expanded');
+                        readMoreBtn.textContent = actualTextContentDiv.classList.contains('expanded') ? 'Leer menos' : 'Leer más...';
+                    };
+                    actualTextContentDiv.insertAdjacentElement('afterend', readMoreBtn);
+                }
+            });
+        }
+        
+        saveNoteButton.addEventListener('click', () => {
+            const selectedDate = noteDateInput.value;
+            const textHTML = noteTextInputDiv.innerHTML;
+            const drawingDataUrl = (canvasHistory.length > 0 && canvasHistory[canvasHistory.length - 1] !== getEmptyCanvasDataUrl()) 
+                                    ? canvasHistory[canvasHistory.length - 1] 
+                                    : null; 
+            const editingId = editingNoteIdInput.value;
+
+            if (!selectedDate) { alert('Por favor, selecciona una fecha.'); return; }
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = textHTML;
+            const isEmptyText = tempDiv.textContent.trim() === '' && tempDiv.querySelector('img') === null;
+
+            if (isEmptyText && !drawingDataUrl) { alert('Por favor, escribe algo o dibuja algo.'); return; }
+
+            let notes = getNotesForDate(selectedDate);
+
+            if (editingId) {
+                notes = notes.map(note => 
+                    note.id === editingId ? { ...note, text: textHTML, drawingDataUrl: drawingDataUrl, updatedAt: new Date().toISOString() } : note
+                );
+            } else {
+                const newNote = {
+                    id: `note_${Date.now()}`,
+                    text: textHTML,
+                    drawingDataUrl: drawingDataUrl,
+                    createdAt: new Date().toISOString()
+                };
+                notes.push(newNote);
+            }
+
+            saveNotesForDate(selectedDate, notes);
+            clearEditorFields();
+            displayNotes();
+        });
+
+        function getEmptyCanvasDataUrl() {
+            const tempC = document.createElement('canvas');
+            tempC.width = canvas.width;
+            tempC.height = canvas.height;
+            return tempC.toDataURL();
+        }
+
+        function clearEditorFields() {
+            noteTextInputDiv.innerHTML = '';
+            clearCanvasOnly(false); 
+            canvasHistory = [getEmptyCanvasDataUrl()]; 
+            canvasRedoStack = [];
+            updateCanvasUndoRedoButtons();
+
+            setDefaultCanvasStyles();
+            editingNoteIdInput.value = '';
+            saveNoteButton.innerHTML = '<span class="material-icons-outlined">save</span> Guardar Nota';
+            
+            currentTool = 'pencil';
+            setActiveToolButton(pencilToolButton);
+            canvas.style.cursor = 'crosshair';
+            
+            textColorInput.value = '#000000';
+            fontSizeSelect.value = '3';
+            
+            penColorInput.value = '#000000';
+            penWidthInput.value = 3;
+            fontSizeCanvasInput.value = 16;
+        }
+        
+        clearEditorButton.addEventListener('click', clearEditorFields);
+
+        window.editNote = function(noteId) {
+            const selectedDate = noteDateInput.value;
+            const notes = getNotesForDate(selectedDate);
+            const noteToEdit = notes.find(note => note.id === noteId);
+
+            if (noteToEdit) {
+                noteTextInputDiv.innerHTML = noteToEdit.text;
+                editingNoteIdInput.value = noteId;
+                saveNoteButton.innerHTML = '<span class="material-icons-outlined">update</span> Actualizar Nota';
+                
+                clearCanvasOnly(false); 
+                canvasHistory = []; 
+                canvasRedoStack = [];
+
+                if (noteToEdit.drawingDataUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        canvasHistory.push(canvas.toDataURL()); 
+                        updateCanvasUndoRedoButtons();
+                    }
+                    img.src = noteToEdit.drawingDataUrl;
+                } else {
+                    canvasHistory.push(getEmptyCanvasDataUrl()); 
+                    updateCanvasUndoRedoButtons();
+                }
+                setDefaultCanvasStyles(); 
+                document.querySelector('.note-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        window.deleteNote = function(noteId) {
+            if (!confirm('¿Estás seguro de que quieres eliminar esta nota? Esta acción no se puede deshacer.')) return;
+            const selectedDate = noteDateInput.value;
+            let notes = getNotesForDate(selectedDate);
+            notes = notes.filter(note => note.id !== noteId);
+            saveNotesForDate(selectedDate, notes);
+            displayNotes();
+        }
+
+        noteDateInput.addEventListener('change', () => {
+            clearEditorFields();
+            displayNotes();
+        });
+
+        function getSelectedNoteIds() {
+            const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+            return Array.from(checkboxes).map(cb => cb.dataset.id);
+        }
+        
+        function getNotesByIds(noteIds) {
+            const selectedDate = noteDateInput.value;
+            const notes = getNotesForDate(selectedDate);
+            return notes.filter(note => noteIds.includes(note.id)).sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+        }
+
+        document.getElementById('mergeNotes').addEventListener('click', () => {
+            const selectedIds = getSelectedNoteIds();
+            if (selectedIds.length < 1) { alert("Selecciona al menos una nota para cargar o unir."); return; }
+            
+            const notesToMerge = getNotesByIds(selectedIds);
+            let mergedTextHTML = "";
+            notesToMerge.forEach((note, index) => {
+                mergedTextHTML += note.text;
+                if (index < notesToMerge.length - 1) {
+                     mergedTextHTML += "<hr style='border-top: 1px dashed #ccc; margin: 10px 0;'>";
+                }
+            });
+            noteTextInputDiv.innerHTML = mergedTextHTML;
+            
+            clearCanvasOnly(false);
+            canvasHistory = [getEmptyCanvasDataUrl()];
+            canvasRedoStack = [];
+            updateCanvasUndoRedoButtons();
+
+            if (notesToMerge.length === 1 && notesToMerge[0].drawingDataUrl) {
+                 const img = new Image();
+                 img.onload = () => { 
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
+                    canvasHistory = [canvas.toDataURL()]; 
+                    updateCanvasUndoRedoButtons();
+                 }
+                 img.src = notesToMerge[0].drawingDataUrl;
+            } else if (notesToMerge.length > 1) {
+                alert("Textos de notas unidas en el editor. Los dibujos no se combinan. Puedes crear uno nuevo.");
+            }
+            
+            editingNoteIdInput.value = ''; 
+            saveNoteButton.innerHTML = '<span class="material-icons-outlined">save</span> Guardar Nota Combinada';
+            document.querySelector('.note-editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        function htmlToPlainText(html) {
+            const tempDiv = document.createElement("div");
+            html = html.replace(/<hr[^>]*>/gi, '\n\n--- SEPARADOR ---\n\n');
+            html = html.replace(/<br\s*\/?>/gi, '\n');
+            ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'].forEach(tag => {
+                const openRegex = new RegExp(`<${tag}[^>]*>`, 'gi');
+                const closeRegex = new RegExp(`<\/${tag}>`, 'gi');
+                html = html.replace(openRegex, '\n').replace(closeRegex, '\n');
+            });
+            tempDiv.innerHTML = html;
+            return (tempDiv.textContent || tempDiv.innerText || "").replace(/\n\s*\n/g, '\n\n').trim();
+        }
+
+        async function exportNotesToPdf(notesToExport) {
+            if (notesToExport.length === 0) { alert("No hay notas para exportar."); return; }
+
+            const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+            let yPosition = 40;
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
+            const margin = 40;
+            const contentWidth = pageWidth - margin * 2;
+
+            for (const note of notesToExport) {
+                if (yPosition > pageHeight - margin - 80) { doc.addPage(); yPosition = margin; }
+
+                doc.setFontSize(14); doc.setFont(undefined, 'bold');
+                const noteTitle = `Nota del ${new Date(note.createdAt).toLocaleString('es-ES', {dateStyle: 'medium', timeStyle: 'short'})}`;
+                doc.text(noteTitle, margin, yPosition);
+                yPosition += 20; doc.setFont(undefined, 'normal');
+
+                doc.setFontSize(10);
+                const plainText = htmlToPlainText(note.text);
+                const textLines = doc.splitTextToSize(plainText, contentWidth);
+                
+                if (yPosition + (textLines.length * 12) > pageHeight - margin) {
+                    doc.addPage(); yPosition = margin;
+                    doc.setFontSize(14); doc.setFont(undefined, 'bold');
+                    doc.text(noteTitle + " (cont.)", margin, yPosition);
+                    yPosition += 20; doc.setFont(undefined, 'normal'); doc.setFontSize(10);
+                }
+                doc.text(textLines, margin, yPosition);
+                yPosition += textLines.length * 12 + 10;
+
+                if (note.drawingDataUrl && note.drawingDataUrl !== "data:,") {
+                    try {
+                        const img = new Image();
+                        img.src = note.drawingDataUrl;
+                        
+                        await new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = (e) => { console.error("Error cargando imagen para PDF:", e); reject(e); };
+                        });
+
+                        const imgProps = doc.getImageProperties(note.drawingDataUrl);
+                        let pdfImgWidth = contentWidth;
+                        let pdfImgHeight = (imgProps.height * pdfImgWidth) / imgProps.width;
+
+                        if (pdfImgHeight > (pageHeight - margin - yPosition - 20)) { 
+                            if (pdfImgHeight <= pageHeight - margin*2) { 
+                                doc.addPage(); yPosition = margin;
+                            } else { 
+                                pdfImgHeight = pageHeight - margin*2;
+                                pdfImgWidth = (imgProps.width * pdfImgHeight) / imgProps.height;
+                                if (yPosition + pdfImgHeight > pageHeight - margin) { 
+                                     doc.addPage(); yPosition = margin;
+                                }
+                            }
+                        }
+                        doc.addImage(note.drawingDataUrl, 'PNG', margin, yPosition, pdfImgWidth, pdfImgHeight);
+                        yPosition += pdfImgHeight + 20;
+                    } catch (error) {
+                        console.error("Error al añadir imagen al PDF:", error);
+                        if (yPosition + 20 > pageHeight - margin) { doc.addPage(); yPosition = margin; }
+                        doc.text("[Error al cargar dibujo]", margin, yPosition);
+                        yPosition += 20;
+                    }
+                }
+                yPosition += 10;
+                if (notesToExport.indexOf(note) < notesToExport.length - 1) {
+                    if (yPosition > pageHeight - margin - 30) { doc.addPage(); yPosition = margin; }
+                    doc.setLineWidth(0.5);
+                    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                    yPosition += 20;
+                }
+            }
+            doc.save(`notas_de_campo_${noteDateInput.value || 'seleccionadas'}_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        document.getElementById('exportToPdf').addEventListener('click', async () => {
+            const selectedIds = getSelectedNoteIds();
+            if (selectedIds.length === 0) { alert("Selecciona al menos una nota para exportar."); return; }
+            const notesToExport = getNotesByIds(selectedIds);
+            await exportNotesToPdf(notesToExport);
+        });
+        
+        document.getElementById('exportAllToPdf').addEventListener('click', async () => {
+            const selectedDate = noteDateInput.value;
+            if (!selectedDate) { alert("Selecciona una fecha para exportar todas sus notas."); return; }
+            const notesToExport = getNotesForDate(selectedDate).sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+            await exportNotesToPdf(notesToExport);
+        });
+
+        function initializeApp() {
+            const today = new Date().toISOString().split('T')[0];
+            noteDateInput.value = today;
+            
+            resizeCanvas(); 
+            canvasHistory = [getEmptyCanvasDataUrl()]; 
+            updateCanvasUndoRedoButtons();
+
+            setDefaultCanvasStyles();
+            setActiveToolButton(pencilToolButton);
+            displayNotes();
+        }
+
+        initializeApp();
+
+    </script>
+</body>
+</html>

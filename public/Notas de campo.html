@@ -731,7 +731,7 @@
             try {
                 const docRef = db.collection("notasDeCampo").doc(noteId);
                 const docSnap = await docRef.get();
-                if (docSnap.exists()) {
+                if (docSnap.exists) {
                     const noteToEdit = { ...docSnap.data(), id: docSnap.id };
                     if (noteToEdit.uid !== currentUser.uid) { alert("No puedes editar esta nota."); return; }
                     noteTextInputDiv.innerHTML = noteToEdit.textHTML || "";

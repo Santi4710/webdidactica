@@ -1,0 +1,300 @@
+--- START OF FILE graficos.html ---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráficos de Datos Agregados</title>
+
+    <!-- Librería Chart.js para los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin para mostrar etiquetas (porcentajes) en los gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+    <!-- Firebase SDK (Software Development Kit) - Usando v9 compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; line-height: 1.6; margin: 0; padding: 10px; background-color: #f0f2f5; color: #1c1e21; font-size: 16px; }
+        .container { max-width: 1400px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.75rem; text-align: center; color: #0d47a1; margin-bottom: 0.5em; }
+        h2 { font-size: 1.5rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 0.4em; color: #1565c0; margin-top: 2em; }
+        h3 { font-size: 1.1rem; color: #333; margin-top: 1.5em; text-align: center; font-weight: 600; }
+        
+        .loading-status, .no-data-message { text-align: center; font-size: 1.2em; color: #555; margin: 40px 0; padding: 15px; background-color: #f8f9fa; border-radius: 6px; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+
+        .dual-chart-wrapper {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .chart-item {
+            flex: 1; 
+            min-width: 0; 
+        }
+        
+        .tab-controls { border-bottom: 2px solid #ccc; margin-bottom: 20px; display: flex; gap: 10px; }
+        .tab-button { padding: 10px 20px; cursor: pointer; border: none; background-color: transparent; font-size: 1.1em; font-weight: 500; border-bottom: 3px solid transparent; transition: all 0.2s ease-in-out; color: #555; }
+        .tab-button:hover { background-color: #f0f2f5; }
+        .tab-button.active { border-bottom: 3px solid #1877f2; color: #1877f2; font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .hidden { display: none !important; }
+        .auth-info { margin-bottom: 20px; padding: 12px; background-color:#e7f3ff; border-left: 5px solid #1877f2; border-radius: 4px; text-align: center;}
+        .auth-info a { color: #0d47a1; font-weight: bold; }
+        .back-link { display: inline-block; margin-top: 30px; background-color: #6c757d; color: white; padding: 10px 18px; border-radius: 6px; text-decoration: none; font-weight: 600; transition: background-color 0.2s; }
+        .back-link:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Resumen Gráfico de Observaciones</h1>
+
+        <div id="authInfo" class="auth-info">Cargando estado de autenticación...</div>
+
+        <div id="mainContent" class="hidden">
+            <div class="tab-controls">
+                <button class="tab-button active" data-tab="my-data">Mis Datos</button>
+                <button class="tab-button" data-tab="global-data">Datos Globales</button>
+            </div>
+            <div id="my-data" class="tab-content active">
+                <div id="myChartsContainer"><p class="loading-status">Cargando tus datos...</p></div>
+            </div>
+            <div id="global-data" class="tab-content">
+                <div id="globalChartsContainer"><p class="loading-status">Cargando datos globales...</p></div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">Volver a la Planilla</a>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIYYqoptI6c3iVFqNWcOqd4XJXkzCyObM",
+            authDomain: "planilla-de-obs.firebaseapp.com",
+            projectId: "planilla-de-obs",
+            storageBucket: "planilla-de-obs.appspot.com",
+            messagingSenderId: "221182459308",
+            appId: "1:221182459308:web:3e62837cd8592cea7bce09",
+            measurementId: "G-QB6FJS3Y80"
+        };
+        
+        const questionGroups = {
+             instalaciones: {
+                title: "Con respecto a las instalaciones",
+                questions: [ { key: 'instalaciones_ambiente', text: '¿La clase se dicta en un ambiente adecuado?' }, { key: 'instalaciones_condiciones', text: '¿El salón se encuentra en buenas condiciones?' }, { key: 'instalaciones_recursos', text: '¿El salón dispone de los recursos necesarios?' }, { key: 'instalaciones_espacio', text: '¿El espacio se organiza de forma adecuada?' }, { key: 'instalaciones_tecnologico', text: '¿Cuentan con material didáctico tecnológico?' }, { key: 'instalaciones_laboratorios', text: '¿Los laboratorios están equipados de forma adecuada?' } ]
+            },
+            rolDocente: {
+                title: "Con respecto al rol docente",
+                questions: [ { key: 'rolDocente_respeto', text: '¿Promueve el respeto entre los alumnos?' }, { key: 'rolDocente_interes', text: '¿Logra captar el interés y la atención de los alumnos?' }, { key: 'rolDocente_ejemplos', text: '¿Utiliza ejemplos para facilitar el aprendizaje?' }, { key: 'rolDocente_preocupa', text: '¿Se preocupa y ocupa si algún alumno no comprende?' }, { key: 'rolDocente_variedadRecursos', text: '¿Utiliza variedad de recursos en la clase? ¿usa TAC?' }, { key: 'rolDocente_estrategias', text: '¿Plantea diferentes estrategias metodológicas?' }, { key: 'rolDocente_gestionTiempo', text: '¿Gestiona de forma correcta el tiempo y el espacio?' }, { key: 'rolDocente_orden', text: '¿Mantiene el orden en el aula?' }, { key: 'rolDocente_problemasEmergentes', text: '¿Resuelve eficazmente problemas emergentes en clase?' }, { key: 'rolDocente_cierre', text: '¿Realiza un cierre claro y pertinente de la clase?' } ]
+            },
+            interaccion: {
+                title: "Interacción docente-estudiante",
+                questions: [ { key: 'interaccion_equidad', text: '¿Muestra equidad en el trato con los estudiantes?' }, { key: 'interaccion_diversidad', text: '¿Atiende la diversidad de aprendizajes?' }, { key: 'interaccion_refuerza', text: '¿Refuerza positivamente el avance de los estudiantes?' }, { key: 'interaccion_participacion', text: '¿Fomenta la participación activa de los y las estudiantes?' }, { key: 'interaccion_integra', text: '¿Integra a los estudiantes con ajuste razonable a la clase?' }, { key: 'interaccion_debate', text: '¿Se crean espacios para el debate y reflexión?' } ]
+            },
+            estudiantes: {
+                title: "Con respecto a los estudiantes",
+                questions: [ { key: 'estudiantes_normas', text: '¿Respetan las normas de comportamiento?' }, { key: 'estudiantes_participan', text: '¿Participan en la clase?' }, { key: 'estudiantes_interaccion', text: '¿Presentan buena interacción entre ellos?' }, { key: 'estudiantes_asisten', text: '¿Asisten a clase de forma regular?' }, { key: 'estudiantes_trabajoGrupo', text: '¿Trabajan de forma ordenada y equitativa en subgrupos?' }, { key: 'estudiantes_respetoColaboracion', text: '¿Hay respeto y colaboración entre los estudiantes?' } ]
+            }
+        };
+
+        let db, auth;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            auth = firebase.auth();
+        } catch (e) {
+            console.error("Error inicializando Firebase: ", e);
+            document.getElementById('authInfo').textContent = "Error crítico: No se pudo conectar a la base de datos.";
+            return;
+        }
+
+        Chart.register(ChartDataLabels);
+
+        const tabControls = document.querySelector('.tab-controls');
+        tabControls.addEventListener('click', (e) => {
+            const clickedTab = e.target.closest('.tab-button');
+            if (!clickedTab) return;
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            clickedTab.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => {
+                c.classList.toggle('active', c.id === clickedTab.dataset.tab);
+            });
+        });
+
+        auth.onAuthStateChanged(user => {
+            const authInfo = document.getElementById('authInfo');
+            const mainContent = document.getElementById('mainContent');
+            if (user) {
+                authInfo.innerHTML = `Sesión iniciada como: <strong>${user.email}</strong>`;
+                mainContent.classList.remove('hidden');
+                fetchAndRenderCharts(db, 'myChartsContainer', user.uid);
+                fetchAndRenderCharts(db, 'globalChartsContainer', null);
+            } else {
+                authInfo.innerHTML = 'Debes <a href="index.html">iniciar sesión</a> para ver tus datos. Se muestran los datos globales.';
+                mainContent.classList.remove('hidden');
+                document.getElementById('myChartsContainer').innerHTML = '<p class="no-data-message">Inicia sesión para ver esta sección.</p>';
+                fetchAndRenderCharts(db, 'globalChartsContainer', null);
+            }
+        });
+
+        async function fetchAndRenderCharts(db, targetContainerId, userId) {
+            const targetContainer = document.getElementById(targetContainerId);
+            try {
+                const localQuestionGroups = JSON.parse(JSON.stringify(questionGroups));
+                let query = db.collection("planillas");
+                if (userId) { query = query.where("creadorUid", "==", userId); }
+                
+                const querySnapshot = await query.get();
+                const totalDocs = querySnapshot.size;
+                
+                if (totalDocs === 0) {
+                    targetContainer.innerHTML = `<p class="no-data-message">No se encontraron planillas ${userId ? 'tuyas' : 'globales'}.</p>`;
+                    return;
+                }
+                
+                targetContainer.innerHTML = `<p class="loading-status">Procesando ${totalDocs} planilla(s)...</p>`;
+
+                // CORRECCIÓN: Usar Object.values() para iterar sobre un objeto
+                Object.values(localQuestionGroups).forEach(group => {
+                    group.questions.forEach(q => q.counts = { 'SI': 0, 'NO': 0, 'Parcialmente': 0, 'Sin Respuesta': 0 });
+                });
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    // CORRECCIÓN: Usar Object.values() aquí también
+                    Object.values(localQuestionGroups).forEach(group => {
+                        group.questions.forEach(q => {
+                            const answer = data[q.key];
+                            if (answer && q.counts.hasOwnProperty(answer)) {
+                                q.counts[answer]++;
+                            } else {
+                                q.counts['Sin Respuesta']++;
+                            }
+                        });
+                    });
+                });
+
+                targetContainer.innerHTML = '';
+                
+                for (const group of Object.values(localQuestionGroups)) {
+                    const sectionTitle = document.createElement('h2');
+                    sectionTitle.textContent = group.title;
+                    targetContainer.appendChild(sectionTitle);
+
+                    const grid = document.createElement('div');
+                    grid.className = 'charts-grid';
+                    targetContainer.appendChild(grid);
+
+                    group.questions.forEach((q, index) => {
+                        const chartContainer = document.createElement('div');
+                        chartContainer.className = 'chart-container';
+                        
+                        const questionTitle = document.createElement('h3');
+                        questionTitle.textContent = q.text;
+                        chartContainer.appendChild(questionTitle);
+
+                        const dualWrapper = document.createElement('div');
+                        dualWrapper.className = 'dual-chart-wrapper';
+
+                        const doughnutItem = document.createElement('div');
+                        doughnutItem.className = 'chart-item';
+                        const doughnutCanvas = document.createElement('canvas');
+                        doughnutItem.appendChild(doughnutCanvas);
+
+                        const barItem = document.createElement('div');
+                        barItem.className = 'chart-item';
+                        const barCanvas = document.createElement('canvas');
+                        barItem.appendChild(barCanvas);
+                        
+                        dualWrapper.appendChild(doughnutItem);
+                        dualWrapper.appendChild(barItem);
+                        chartContainer.appendChild(dualWrapper);
+                        grid.appendChild(chartContainer);
+
+                        const chartData = {
+                            labels: ['SI', 'NO', 'Parcialmente', 'Sin Respuesta'],
+                            datasets: [{
+                                label: 'Respuestas',
+                                data: [q.counts.SI, q.counts.NO, q.counts.Parcialmente, q.counts['Sin Respuesta']],
+                                backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)', 'rgba(255, 206, 86, 0.7)', 'rgba(201, 203, 207, 0.7)'],
+                                borderColor: ['#fff'],
+                                borderWidth: 2
+                            }]
+                        };
+
+                        new Chart(doughnutCanvas, {
+                            type: 'doughnut',
+                            data: chartData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    legend: { position: 'top' },
+                                    datalabels: {
+                                        formatter: (value, context) => {
+                                            const datapoints = context.chart.data.datasets[0].data;
+                                            const total = datapoints.reduce((total, datapoint) => total + datapoint, 0);
+                                            if (total === 0) return '0%'; // Evitar división por cero
+                                            const percentage = value / total * 100;
+                                            return percentage > 3 ? percentage.toFixed(1) + '%' : '';
+                                        },
+                                        color: '#fff',
+                                        font: { weight: 'bold', size: 14 }
+                                    }
+                                }
+                            }
+                        });
+
+                        new Chart(barCanvas, {
+                            type: 'bar',
+                            data: chartData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    legend: { display: false }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1 
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error(`Error en fetchAndRenderCharts para ${targetContainerId}:`, error);
+                targetContainer.innerHTML = `<p class="no-data-message">Ocurrió un error al cargar los datos.</p>`;
+            }
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,5 +1,3 @@
---- START OF FILE index.html ---
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -55,7 +53,7 @@
 
 
         .actions, .saved-planillas-section, .auth-section { margin-top: 25px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
-        button, a.button-link-style {
+        button, a.button-link-style { /* MODIFICADO: Añadido a.button-link-style */
             background-color: #1877f2; 
             color: white; 
             padding: 10px 18px; 
@@ -69,8 +67,8 @@
             text-decoration: none; /* Para los <a> */
             display: inline-block; /* Para que padding y margin funcionen bien en <a> */
         }
-        button:hover, a.button-link-style:hover { background-color: #166fe5; }
-        button:disabled, a.button-link-style.disabled { background-color: #bcc0c4; color:#777; cursor: not-allowed; } 
+        button:hover, a.button-link-style:hover { background-color: #166fe5; } /* MODIFICADO */
+        button:disabled, a.button-link-style.disabled { background-color: #bcc0c4; color:#777; cursor: not-allowed; } /* MODIFICADO */
         
         button.add-note-row { background-color: #42b72a; margin-bottom: 12px; }
         button.add-note-row:hover { background-color: #36a420; }
@@ -98,7 +96,7 @@
             font-weight: 600;
             transition: background-color 0.3s ease;
             border-radius: 6px;
-            margin-bottom: 0;
+            margin-bottom: 0; /* Ajustado */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -109,26 +107,26 @@
             padding: 15px;
             display: none;
             overflow: hidden;
-            background-color: #f9fafb;
+            background-color: #f9fafb; /* Mismo que .section-block */
             border: 1px solid #e0e0e0;
-            border-top: none; 
+            border-top: none; /* Para que se una con el header */
             border-bottom-left-radius: 6px;
             border-bottom-right-radius: 6px;
-            margin-bottom: 20px; 
+            margin-bottom: 20px; /* Espacio después del contenido del acordeón */
         }
         .accordion-arrow { font-size: 1.2rem; transition: transform 0.3s ease; }
         .accordion-header.active .accordion-arrow { transform: rotate(90deg); }
 
-        /* Contenedor de botones en línea */
+        /* NUEVO ESTILO PARA CONTENEDOR DE BOTONES */
         .botones-inline {
-            display: flex; 
-            flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
-            gap: 10px;     
-            align-items: center; 
-            margin-top: 5px; 
+            display: flex; /* Activa Flexbox */
+            gap: 10px;     /* Espacio entre los botones */
+            align-items: center; /* Alinea verticalmente los botones si tuvieran alturas diferentes */
+            margin-top: 5px; /* Un pequeño margen arriba si es necesario */
         }
+        /* Fin de nuevo estilo */
 
-        /* DOCX Styles */
+        /* DOCX Styles (se mantienen igual) */
         .docx-title { font-size: 22pt; text-align: center; margin-bottom: 20px; font-weight: bold; }
         .docx-subtitle { font-size: 16pt; margin-top: 20px; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
         .docx-section-title { font-size: 14pt; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
@@ -144,8 +142,8 @@
 </head>
 <body>
     <div class="container">
-        <!-- ... (código sin cambios) ... -->
         <div class="auth-section">
+            <!-- ... (tu sección de autenticación no cambia) ... -->
              <div id="userInfo" class="user-info hidden">
                 Bienvenido/a, <span id="userEmailDisplay"></span>.
                 <button id="logoutButton">Cerrar Sesión</button>
@@ -163,12 +161,14 @@
         </div>
 
         <h1>Planilla de Observación de Clase</h1>
+        <!-- ... (resto de tu HTML hasta la sección de planillas guardadas) ... -->
         <p>Utiliza esta planilla para registrar tus observaciones. Las secciones pueden desplegarse haciendo clic en sus títulos.</p>
+
         <h2> Planilla modelo de observación de clase.</h2>
-        
         <form id="observationForm">
-             <!-- ... (todo el formulario sin cambios) ... -->
-             <div class="form-section">
+            <!-- ... (todo tu formulario no cambia) ... -->
+             <!-- Datos Iniciales (siempre visible, no desplegable) -->
+            <div class="form-section">
                 <h3>Datos Iniciales</h3>
                 <label for="observador">Observador/a: (Tu nombre o el del autor original)</label>
                 <input type="text" id="observador" name="observador">
@@ -189,40 +189,108 @@
                 <label for="objetivoObservacion">Objetivo de la Observación:</label>
                 <textarea id="objetivoObservacion" name="objetivoObservacion" rows="3" placeholder="Ej: Analizar estrategias docentes, observar interacción, foco en clima de aula, etc."></textarea>
             </div>
+
+            <!-- Sección Instalaciones (Desplegable) -->
             <div class="section-container" data-section-id="instalaciones">
-                <button type="button" class="accordion-header">Con respecto a las instalaciones<span class="accordion-arrow">&#x276F;</span></button>
+                <button type="button" class="accordion-header">
+                    Con respecto a las instalaciones
+                    <span class="accordion-arrow">&#x276F;</span> <!-- Flecha derecha como ícono -->
+                </button>
                 <div class="accordion-content">
-                    <table class="observation-table"><thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead><tbody><tr><td>¿La clase se dicta en un ambiente adecuado?</td><td><input type="radio" name="instalaciones_ambiente" value="SI"></td><td><input type="radio" name="instalaciones_ambiente" value="NO"></td><td><input type="radio" name="instalaciones_ambiente" value="Parcialmente"></td></tr><tr><td>¿El salón se encuentra en buenas condiciones?</td><td><input type="radio" name="instalaciones_condiciones" value="SI"></td><td><input type="radio" name="instalaciones_condiciones" value="NO"></td><td><input type="radio" name="instalaciones_condiciones" value="Parcialmente"></td></tr><tr><td>¿El salón dispone de los recursos necesarios?</td><td><input type="radio" name="instalaciones_recursos" value="SI"></td><td><input type="radio" name="instalaciones_recursos" value="NO"></td><td><input type="radio" name="instalaciones_recursos" value="Parcialmente"></td></tr><tr><td>¿El espacio se organiza de forma adecuada?</td><td><input type="radio" name="instalaciones_espacio" value="SI"></td><td><input type="radio" name="instalaciones_espacio" value="NO"></td><td><input type="radio" name="instalaciones_espacio" value="Parcialmente"></td></tr><tr><td>¿Cuentan con material didáctico tecnológico?</td><td><input type="radio" name="instalaciones_tecnologico" value="SI"></td><td><input type="radio" name="instalaciones_tecnologico" value="NO"></td><td><input type="radio" name="instalaciones_tecnologico" value="Parcialmente"></td></tr><tr><td>¿Los laboratorios están equipados de forma adecuada?</td><td><input type="radio" name="instalaciones_laboratorios" value="SI"></td><td><input type="radio" name="instalaciones_laboratorios" value="NO"></td><td><input type="radio" name="instalaciones_laboratorios" value="Parcialmente"></td></tr></tbody></table>
-                    <h4>Notas (Observar: ruidos, ventanas rotas, temperatura en el aula, etc.)</h4><div class="notes-section" id="notes_instalaciones"><button type="button" class="add-note-row" data-target="notes_instalaciones_table_body">Añadir Fila de Notas</button><table class="notes-dynamic-table"><thead><tr><th>Hora</th><th>Descripción de los hechos</th><th>Impresiones subjetivas</th><th>Análisis de los hechos</th><th></th></tr></thead><tbody id="notes_instalaciones_table_body"></tbody></table></div>
+                    <table class="observation-table">
+                        <thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead>
+                        <tbody>
+                            <tr><td>¿La clase se dicta en un ambiente adecuado?</td><td><input type="radio" name="instalaciones_ambiente" value="SI"></td><td><input type="radio" name="instalaciones_ambiente" value="NO"></td><td><input type="radio" name="instalaciones_ambiente" value="Parcialmente"></td></tr>
+                            <tr><td>¿El salón se encuentra en buenas condiciones?</td><td><input type="radio" name="instalaciones_condiciones" value="SI"></td><td><input type="radio" name="instalaciones_condiciones" value="NO"></td><td><input type="radio" name="instalaciones_condiciones" value="Parcialmente"></td></tr>
+                            <tr><td>¿El salón dispone de los recursos necesarios?</td><td><input type="radio" name="instalaciones_recursos" value="SI"></td><td><input type="radio" name="instalaciones_recursos" value="NO"></td><td><input type="radio" name="instalaciones_recursos" value="Parcialmente"></td></tr>
+                            <tr><td>¿El espacio se organiza de forma adecuada?</td><td><input type="radio" name="instalaciones_espacio" value="SI"></td><td><input type="radio" name="instalaciones_espacio" value="NO"></td><td><input type="radio" name="instalaciones_espacio" value="Parcialmente"></td></tr>
+                            <tr><td>¿Cuentan con material didáctico tecnológico?</td><td><input type="radio" name="instalaciones_tecnologico" value="SI"></td><td><input type="radio" name="instalaciones_tecnologico" value="NO"></td><td><input type="radio" name="instalaciones_tecnologico" value="Parcialmente"></td></tr>
+                            <tr><td>¿Los laboratorios están equipados de forma adecuada?</td><td><input type="radio" name="instalaciones_laboratorios" value="SI"></td><td><input type="radio" name="instalaciones_laboratorios" value="NO"></td><td><input type="radio" name="instalaciones_laboratorios" value="Parcialmente"></td></tr>
+                        </tbody>
+                    </table>
+                    <h4>Notas (Observar: ruidos, ventanas rotas, temperatura en el aula, etc.)</h4>
+                    <div class="notes-section" id="notes_instalaciones"><button type="button" class="add-note-row" data-target="notes_instalaciones_table_body">Añadir Fila de Notas</button><table class="notes-dynamic-table"><thead><tr><th>Hora</th><th>Descripción de los hechos</th><th>Impresiones subjetivas</th><th>Análisis de los hechos</th><th></th></tr></thead><tbody id="notes_instalaciones_table_body"></tbody></table></div>
                 </div>
             </div>
+
+            <!-- Sección Rol Docente (Desplegable) -->
             <div class="section-container" data-section-id="rolDocente">
-                <button type="button" class="accordion-header">Con respecto al rol docente<span class="accordion-arrow">&#x276F;</span></button>
+                <button type="button" class="accordion-header">
+                    Con respecto al rol docente
+                    <span class="accordion-arrow">&#x276F;</span>
+                </button>
                 <div class="accordion-content">
-                    <table class="observation-table"><thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead><tbody><tr><td>¿Promueve el respeto entre los alumnos?</td><td><input type="radio" name="rolDocente_respeto" value="SI"></td><td><input type="radio" name="rolDocente_respeto" value="NO"></td><td><input type="radio" name="rolDocente_respeto" value="Parcialmente"></td></tr><tr><td>¿Logra captar el interés y la atención de los alumnos?</td><td><input type="radio" name="rolDocente_interes" value="SI"></td><td><input type="radio" name="rolDocente_interes" value="NO"></td><td><input type="radio" name="rolDocente_interes" value="Parcialmente"></td></tr><tr><td>¿Utiliza ejemplos para facilitar el aprendizaje?</td><td><input type="radio" name="rolDocente_ejemplos" value="SI"></td><td><input type="radio" name="rolDocente_ejemplos" value="NO"></td><td><input type="radio" name="rolDocente_ejemplos" value="Parcialmente"></td></tr><tr><td>¿Se preocupa y ocupa si algún alumno no comprende?</td><td><input type="radio" name="rolDocente_preocupa" value="SI"></td><td><input type="radio" name="rolDocente_preocupa" value="NO"></td><td><input type="radio" name="rolDocente_preocupa" value="Parcialmente"></td></tr><tr><td>¿Utiliza variedad de recursos en la clase? ¿usa TAC?</td><td><input type="radio" name="rolDocente_variedadRecursos" value="SI"></td><td><input type="radio" name="rolDocente_variedadRecursos" value="NO"></td><td><input type="radio" name="rolDocente_variedadRecursos" value="Parcialmente"></td></tr><tr><td>¿Plantea diferentes estrategias metodológicas?</td><td><input type="radio" name="rolDocente_estrategias" value="SI"></td><td><input type="radio" name="rolDocente_estrategias" value="NO"></td><td><input type="radio" name="rolDocente_estrategias" value="Parcialmente"></td></tr><tr><td>¿Gestiona de forma correcta el tiempo y el espacio?</td><td><input type="radio" name="rolDocente_gestionTiempo" value="SI"></td><td><input type="radio" name="rolDocente_gestionTiempo" value="NO"></td><td><input type="radio" name="rolDocente_gestionTiempo" value="Parcialmente"></td></tr><tr><td>¿Mantiene el orden en el aula?</td><td><input type="radio" name="rolDocente_orden" value="SI"></td><td><input type="radio" name="rolDocente_orden" value="NO"></td><td><input type="radio" name="rolDocente_orden" value="Parcialmente"></td></tr><tr><td>¿Resuelve eficazmente problemas emergentes en clase?</td><td><input type="radio" name="rolDocente_problemasEmergentes" value="SI"></td><td><input type="radio" name="rolDocente_problemasEmergentes" value="NO"></td><td><input type="radio" name="rolDocente_problemasEmergentes" value="Parcialmente"></td></tr><tr><td>¿Realiza un cierre claro y pertinente de la clase?</td><td><input type="radio" name="rolDocente_cierre" value="SI"></td><td><input type="radio" name="rolDocente_cierre" value="NO"></td><td><input type="radio" name="rolDocente_cierre" value="Parcialmente"></td></tr></tbody></table>
+                    <table class="observation-table">
+                        <thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead>
+                        <tbody>
+                            <tr><td>¿Promueve el respeto entre los alumnos?</td><td><input type="radio" name="rolDocente_respeto" value="SI"></td><td><input type="radio" name="rolDocente_respeto" value="NO"></td><td><input type="radio" name="rolDocente_respeto" value="Parcialmente"></td></tr>
+                            <tr><td>¿Logra captar el interés y la atención de los alumnos?</td><td><input type="radio" name="rolDocente_interes" value="SI"></td><td><input type="radio" name="rolDocente_interes" value="NO"></td><td><input type="radio" name="rolDocente_interes" value="Parcialmente"></td></tr>
+                            <tr><td>¿Utiliza ejemplos para facilitar el aprendizaje?</td><td><input type="radio" name="rolDocente_ejemplos" value="SI"></td><td><input type="radio" name="rolDocente_ejemplos" value="NO"></td><td><input type="radio" name="rolDocente_ejemplos" value="Parcialmente"></td></tr>
+                            <tr><td>¿Se preocupa y ocupa si algún alumno no comprende?</td><td><input type="radio" name="rolDocente_preocupa" value="SI"></td><td><input type="radio" name="rolDocente_preocupa" value="NO"></td><td><input type="radio" name="rolDocente_preocupa" value="Parcialmente"></td></tr>
+                            <tr><td>¿Utiliza variedad de recursos en la clase? ¿usa TAC?</td><td><input type="radio" name="rolDocente_variedadRecursos" value="SI"></td><td><input type="radio" name="rolDocente_variedadRecursos" value="NO"></td><td><input type="radio" name="rolDocente_variedadRecursos" value="Parcialmente"></td></tr>
+                            <tr><td>¿Plantea diferentes estrategias metodológicas?</td><td><input type="radio" name="rolDocente_estrategias" value="SI"></td><td><input type="radio" name="rolDocente_estrategias" value="NO"></td><td><input type="radio" name="rolDocente_estrategias" value="Parcialmente"></td></tr>
+                            <tr><td>¿Gestiona de forma correcta el tiempo y el espacio?</td><td><input type="radio" name="rolDocente_gestionTiempo" value="SI"></td><td><input type="radio" name="rolDocente_gestionTiempo" value="NO"></td><td><input type="radio" name="rolDocente_gestionTiempo" value="Parcialmente"></td></tr>
+                            <tr><td>¿Mantiene el orden en el aula?</td><td><input type="radio" name="rolDocente_orden" value="SI"></td><td><input type="radio" name="rolDocente_orden" value="NO"></td><td><input type="radio" name="rolDocente_orden" value="Parcialmente"></td></tr>
+                            <tr><td>¿Resuelve eficazmente problemas emergentes en clase?</td><td><input type="radio" name="rolDocente_problemasEmergentes" value="SI"></td><td><input type="radio" name="rolDocente_problemasEmergentes" value="NO"></td><td><input type="radio" name="rolDocente_problemasEmergentes" value="Parcialmente"></td></tr>
+                            <tr><td>¿Realiza un cierre claro y pertinente de la clase?</td><td><input type="radio" name="rolDocente_cierre" value="SI"></td><td><input type="radio" name="rolDocente_cierre" value="NO"></td><td><input type="radio" name="rolDocente_cierre" value="Parcialmente"></td></tr>
+                        </tbody>
+                    </table>
                     <p class="tac-note">TAC: tecnologías del aprendizaje y el conocimiento (ej: presentación interactiva, kahoot, cuestionarios CREA, etc.).</p>
                     <h4>Notas</h4><div class="notes-section" id="notes_rolDocente"><button type="button" class="add-note-row" data-target="notes_rolDocente_table_body">Añadir Fila de Notas</button><table class="notes-dynamic-table"><thead><tr><th>Hora</th><th>Descripción de los hechos</th><th>Impresiones subjetivas</th><th>Análisis de los hechos</th><th></th></tr></thead><tbody id="notes_rolDocente_table_body"></tbody></table></div>
                 </div>
             </div>
+
+            <!-- Sección Interacción Docente-Estudiante (Desplegable) -->
             <div class="section-container" data-section-id="interaccion">
-                <button type="button" class="accordion-header">Interacción docente-estudiante<span class="accordion-arrow">&#x276F;</span></button>
+                <button type="button" class="accordion-header">
+                    Interacción docente-estudiante
+                    <span class="accordion-arrow">&#x276F;</span>
+                </button>
                 <div class="accordion-content">
-                     <table class="observation-table"><thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead><tbody><tr><td>¿Muestra equidad en el trato con los estudiantes?</td><td><input type="radio" name="interaccion_equidad" value="SI"></td><td><input type="radio" name="interaccion_equidad" value="NO"></td><td><input type="radio" name="interaccion_equidad" value="Parcialmente"></td></tr><tr><td>¿Atiende la diversidad de aprendizajes?</td><td><input type="radio" name="interaccion_diversidad" value="SI"></td><td><input type="radio" name="interaccion_diversidad" value="NO"></td><td><input type="radio" name="interaccion_diversidad" value="Parcialmente"></td></tr><tr><td>¿Refuerza positivamente el avance de los estudiantes?</td><td><input type="radio" name="interaccion_refuerza" value="SI"></td><td><input type="radio" name="interaccion_refuerza" value="NO"></td><td><input type="radio" name="interaccion_refuerza" value="Parcialmente"></td></tr><tr><td>¿Fomenta la participación activa de los y las estudiantes?</td><td><input type="radio" name="interaccion_participacion" value="SI"></td><td><input type="radio" name="interaccion_participacion" value="NO"></td><td><input type="radio" name="interaccion_participacion" value="Parcialmente"></td></tr><tr><td>¿Integra a los estudiantes con ajuste razonable a la clase?</td><td><input type="radio" name="interaccion_integra" value="SI"></td><td><input type="radio" name="interaccion_integra" value="NO"></td><td><input type="radio" name="interaccion_integra" value="Parcialmente"></td></tr><tr><td>¿Se crean espacios para el debate y reflexión?</td><td><input type="radio" name="interaccion_debate" value="SI"></td><td><input type="radio" name="interaccion_debate" value="NO"></td><td><input type="radio" name="interaccion_debate" value="Parcialmente"></td></tr></tbody></table>
+                     <table class="observation-table">
+                         <thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead>
+                        <tbody>
+                            <tr><td>¿Muestra equidad en el trato con los estudiantes?</td><td><input type="radio" name="interaccion_equidad" value="SI"></td><td><input type="radio" name="interaccion_equidad" value="NO"></td><td><input type="radio" name="interaccion_equidad" value="Parcialmente"></td></tr>
+                            <tr><td>¿Atiende la diversidad de aprendizajes?</td><td><input type="radio" name="interaccion_diversidad" value="SI"></td><td><input type="radio" name="interaccion_diversidad" value="NO"></td><td><input type="radio" name="interaccion_diversidad" value="Parcialmente"></td></tr>
+                            <tr><td>¿Refuerza positivamente el avance de los estudiantes?</td><td><input type="radio" name="interaccion_refuerza" value="SI"></td><td><input type="radio" name="interaccion_refuerza" value="NO"></td><td><input type="radio" name="interaccion_refuerza" value="Parcialmente"></td></tr>
+                            <tr><td>¿Fomenta la participación activa de los y las estudiantes?</td><td><input type="radio" name="interaccion_participacion" value="SI"></td><td><input type="radio" name="interaccion_participacion" value="NO"></td><td><input type="radio" name="interaccion_participacion" value="Parcialmente"></td></tr>
+                            <tr><td>¿Integra a los estudiantes con ajuste razonable a la clase?</td><td><input type="radio" name="interaccion_integra" value="SI"></td><td><input type="radio" name="interaccion_integra" value="NO"></td><td><input type="radio" name="interaccion_integra" value="Parcialmente"></td></tr>
+                            <tr><td>¿Se crean espacios para el debate y reflexión?</td><td><input type="radio" name="interaccion_debate" value="SI"></td><td><input type="radio" name="interaccion_debate" value="NO"></td><td><input type="radio" name="interaccion_debate" value="Parcialmente"></td></tr>
+                        </tbody>
+                    </table>
                     <h4>Notas</h4><div class="notes-section" id="notes_interaccion"><button type="button" class="add-note-row" data-target="notes_interaccion_table_body">Añadir Fila de Notas</button><table class="notes-dynamic-table"><thead><tr><th>Hora</th><th>Descripción de los hechos</th><th>Impresiones subjetivas</th><th>Análisis de los hechos</th><th></th></tr></thead><tbody id="notes_interaccion_table_body"></tbody></table></div>
                 </div>
             </div>
+
+            <!-- Sección Estudiantes (Desplegable) -->
             <div class="section-container" data-section-id="estudiantes">
-                <button type="button" class="accordion-header">Con respecto a los estudiantes<span class="accordion-arrow">&#x276F;</span></button>
+                <button type="button" class="accordion-header">
+                    Con respecto a los estudiantes
+                    <span class="accordion-arrow">&#x276F;</span>
+                </button>
                 <div class="accordion-content">
-                    <table class="observation-table"><thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead><tbody><tr><td>¿Respetan las normas de comportamiento?</td><td><input type="radio" name="estudiantes_normas" value="SI"></td><td><input type="radio" name="estudiantes_normas" value="NO"></td><td><input type="radio" name="estudiantes_normas" value="Parcialmente"></td></tr><tr><td>¿Participan en la clase?</td><td><input type="radio" name="estudiantes_participan" value="SI"></td><td><input type="radio" name="estudiantes_participan" value="NO"></td><td><input type="radio" name="estudiantes_participan" value="Parcialmente"></td></tr><tr><td>¿Presentan buena interacción entre ellos?</td><td><input type="radio" name="estudiantes_interaccion" value="SI"></td><td><input type="radio" name="estudiantes_interaccion" value="NO"></td><td><input type="radio" name="estudiantes_interaccion" value="Parcialmente"></td></tr><tr><td>¿Asisten a clase de forma regular?</td><td><input type="radio" name="estudiantes_asisten" value="SI"></td><td><input type="radio" name="estudiantes_asisten" value="NO"></td><td><input type="radio" name="estudiantes_asisten" value="Parcialmente"></td></tr><tr><td>¿Trabajan de forma ordenada y equitativa en subgrupos de trabajo?</td><td><input type="radio" name="estudiantes_trabajoGrupo" value="SI"></td><td><input type="radio" name="estudiantes_trabajoGrupo" value="NO"></td><td><input type="radio" name="estudiantes_trabajoGrupo" value="Parcialmente"></td></tr><tr><td>¿Hay respeto y colaboración entre los estudiantes?</td><td><input type="radio" name="estudiantes_respetoColaboracion" value="SI"></td><td><input type="radio" name="estudiantes_respetoColaboracion" value="NO"></td><td><input type="radio" name="estudiantes_respetoColaboracion" value="Parcialmente"></td></tr></tbody></table>
+                    <table class="observation-table">
+                        <thead><tr><th>Pregunta</th><th>SI</th><th>NO</th><th>Parcialmente</th></tr></thead>
+                        <tbody>
+                            <tr><td>¿Respetan las normas de comportamiento?</td><td><input type="radio" name="estudiantes_normas" value="SI"></td><td><input type="radio" name="estudiantes_normas" value="NO"></td><td><input type="radio" name="estudiantes_normas" value="Parcialmente"></td></tr>
+                            <tr><td>¿Participan en la clase?</td><td><input type="radio" name="estudiantes_participan" value="SI"></td><td><input type="radio" name="estudiantes_participan" value="NO"></td><td><input type="radio" name="estudiantes_participan" value="Parcialmente"></td></tr>
+                            <tr><td>¿Presentan buena interacción entre ellos?</td><td><input type="radio" name="estudiantes_interaccion" value="SI"></td><td><input type="radio" name="estudiantes_interaccion" value="NO"></td><td><input type="radio" name="estudiantes_interaccion" value="Parcialmente"></td></tr>
+                            <tr><td>¿Asisten a clase de forma regular?</td><td><input type="radio" name="estudiantes_asisten" value="SI"></td><td><input type="radio" name="estudiantes_asisten" value="NO"></td><td><input type="radio" name="estudiantes_asisten" value="Parcialmente"></td></tr>
+                            <tr><td>¿Trabajan de forma ordenada y equitativa en subgrupos de trabajo?</td><td><input type="radio" name="estudiantes_trabajoGrupo" value="SI"></td><td><input type="radio" name="estudiantes_trabajoGrupo" value="NO"></td><td><input type="radio" name="estudiantes_trabajoGrupo" value="Parcialmente"></td></tr>
+                            <tr><td>¿Hay respeto y colaboración entre los estudiantes?</td><td><input type="radio" name="estudiantes_respetoColaboracion" value="SI"></td><td><input type="radio" name="estudiantes_respetoColaboracion" value="NO"></td><td><input type="radio" name="estudiantes_respetoColaboracion" value="Parcialmente"></td></tr>
+                        </tbody>
+                    </table>
                     <h4>Notas</h4><div class="notes-section" id="notes_estudiantes"><button type="button" class="add-note-row" data-target="notes_estudiantes_table_body">Añadir Fila de Notas</button><table class="notes-dynamic-table"><thead><tr><th>Hora</th><th>Descripción de los hechos</th><th>Impresiones subjetivas</th><th>Análisis de los hechos</th><th></th></tr></thead><tbody id="notes_estudiantes_table_body"></tbody></table></div>
                 </div>
             </div>
+            
+            <!-- Sección Reflexiones (siempre visible) -->
             <div class="form-section">
                 <h3>Reflexiones de cierre:</h3>
                 <label for="conclusiones">Conclusiones Preliminares:</label>
                 <textarea id="conclusiones" name="conclusiones" rows="5"></textarea>
             </div>
+
             <div class="actions">
                 <button type="button" id="savePlanilla" disabled>Guardar/Actualizar Planilla</button>
                 <button type="button" id="exportDocx">Exportar a .docx</button>
@@ -237,6 +305,7 @@
                 <select id="misPlanillasList">
                     <option value="">-- Selecciona una de tus planillas --</option>
                 </select>
+                <!-- MODIFICADO: Contenedor para botones inline -->
                 <div class="botones-inline">
                     <button type="button" id="loadMiPlanilla">Cargar Mi Planilla</button>
                     <button type="button" id="deleteMiPlanilla">Eliminar Mi Planilla</button>
@@ -248,19 +317,17 @@
                 <select id="otrasPlanillasList">
                     <option value="">-- Selecciona una planilla para ver --</option>
                 </select>
-                <!-- MODIFICADO: Contenedor para botones inline con la nueva opción -->
+                <!-- MODIFICADO: Contenedor para botones inline -->
                 <div class="botones-inline">
                     <button type="button" id="loadOtraPlanilla">Ver Planilla de Compañero</button>
-                    <a href="Notas de campo.html" class="button-link-style">Ir a Notas de Campo</a>
-                    <a href="graficos.html" class="button-link-style" style="background-color: #4CAF50;">Ver Gráficos de Datos</a> <!-- NUEVO BOTÓN/ENLACE -->
+                    <a href="Notas de campo.html" class="button-link-style">Ir a Notas de Campo</a> <!-- NUEVO BOTÓN/ENLACE -->
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-    // --- TU JAVASCRIPT EXISTENTE (SIN CAMBIOS) ---
-    // Pega aquí todo tu bloque de JavaScript original. No es necesario modificarlo.
+    // --- Tu JavaScript existente (NO LO MODIFIQUÉ) ---
    document.addEventListener('DOMContentLoaded', () => {
     // --- Configuración e Inicialización de Firebase ---
     const firebaseConfig = {
